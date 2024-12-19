@@ -1,0 +1,347 @@
+/* 容器基础样式 */
+.container {
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+
+  /* 共用变量 - 移到 container 中 */
+  --blue-primary: #3B82F6;
+  --blue-secondary: #2563EB;
+  --yellow-primary: #eab308;
+  --white: #fff;
+  --black: #000;
+  --button-padding-base: 10px 20px;
+  --button-padding-large: 12px 26px;
+  --button-font-base: 16px;
+  --button-font-large: 18px;
+
+  /* 日间主题变量 */
+  --text-primary: var(--black);
+  --text-secondary: #666;
+  --border-color: var(--blue-primary);
+  --card-bg: rgba(255, 255, 255, 1);
+  --button-hover: var(--blue-primary);
+  --input-bg: rgba(0, 0, 0, 0.05);
+  --highlight-button-bg: var(--blue-primary);
+  --highlight-button-text: var(--white);
+  --highlight-button-border: transparent;
+  --upload-icon-color: var(--blue-primary);
+}
+
+/* 夜间主题变量 */
+.containerDark {
+  --text-primary: var(--white);
+  --text-secondary: var(--white);
+  --border-color: var(--blue-primary);
+  --card-bg: rgba(0, 0, 0, 0.7);
+  --button-bg: transparent;
+  --button-hover: var(--yellow-primary);
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --highlight-button-bg: var(--yellow-primary);
+  --highlight-button-text: var(--black);
+  --highlight-button-border: rgba(234, 179, 8, 0.3);
+  --upload-icon-color: var(--blue-primary);
+  --preview-border-color: var(--yellow-primary);
+}
+
+/* 顶栏样式 */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  backdrop-filter: blur(12px);
+  background: var(--card-bg);
+  z-index: 50;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo区域 */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* 导航按钮 */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 导航按钮基础样式 */
+.button {
+  padding: var(--button-padding-base);
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: var(--button-bg);
+  transition: all 0.2s;
+  font-size: var(--button-font-base);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+}
+
+/* 上传图片按钮特殊样式 */
+.button:first-child {
+  background: var(--highlight-button-bg);
+  color: var(--highlight-button-text);
+  font-size: var(--button-font-large);
+  font-weight: 700;
+  border: 2px solid var(--highlight-button-border);
+  box-shadow: 0 0 10px var(--highlight-button-border);
+  padding: var(--button-padding-large);
+}
+
+.button:hover {
+  background: var(--button-hover);
+  transform: translateY(-1px);
+}
+
+/* 移除退出登录按钮的红色背景 */
+.buttonRed {
+  background: var(--button-bg);
+}
+
+.buttonRed:hover {
+  background: var(--button-hover);
+}
+
+/* 主内容区域 */
+.main {
+  padding: 88px 24px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 上传区域 */
+.uploadArea {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.dropZone {
+  border: 3px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 48px;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.dropZoneActive {
+  border-color: var(--border-color);
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.dropZone:hover {
+  border-color: var(--border-color);
+}
+
+/* 上传图标 */
+.uploadIcon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border: 2px solid var(--upload-icon-color);
+  border-radius: 50%;
+  position: relative;
+}
+
+.uploadIcon::before {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--upload-icon-color);
+  font-size: 48px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.uploadText {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* 上传状态 */
+.uploadingState {
+  text-align: center;
+  color: var(--text-primary);
+}
+
+/* 进度条 */
+.progressBar {
+  width: 100%;
+  max-width: 300px;
+  height: 6px;
+  background: var(--input-bg);
+  border-radius: 3px;
+  margin: 12px auto;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: #60A5FA;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* 预览区域 */
+.previewArea {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+/* 预览网格 */
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+/* 预览卡片 */
+.previewCard {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.imagePreview {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* URL组 */
+.urlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.urlItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.urlLabel {
+  min-width: 70px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: right;
+}
+
+.urlInput {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 调整复制按钮样式 */
+.copyButton {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--highlight-button-bg);
+  color: var(--highlight-button-text);
+  font-size: 12px;
+  font-weight: normal;
+  white-space: nowrap;
+  transition: all 0.2s;
+  border: none;
+}
+
+.copyButton:hover {
+  background: var(--button-hover);
+  transform: translateY(-1px);
+}
+
+/* 预览卡 - 夜间主题特殊处理 */
+.containerDark .previewCard {
+  border: 1px solid var(--preview-border-color);
+  box-shadow: 0 0 5px var(--preview-border-color);
+}
+
+.containerDark .previewCard .imagePreview {
+  border: 1px solid var(--preview-border-color);
+  box-shadow: 0 0 8px var(--preview-border-color);
+}
+
+.containerDark .previewCard .urlInput {
+  border-color: var(--preview-border-color);
+}
+
+.containerDark .previewCard .copyButton {
+  border: 1px solid var(--preview-border-color);
+  box-shadow: 0 0 2px var(--preview-border-color);
+}
+
+/* 夜间主题下的标题和普通按钮文字颜色 */
+.containerDark .title,
+.containerDark .button:not(:first-child) {
+  color: var(--text-secondary);
+}
+
+/* 夜间主题下的链接输入框文字颜色 */
+.containerDark .urlInput {
+  color: var(--text-secondary);
+}
+
+/* 预览区域 - 夜间主题特殊处理 */
+.containerDark .previewArea {
+  /* 移除这个样式，保持默认的蓝色边框 */
+}
+ 

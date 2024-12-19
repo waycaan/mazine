@@ -1,0 +1,478 @@
+/* 继承 home.module.css 的基础样式 */
+.container {
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  
+    /* 共用变量 */
+    --blue-primary: #3B82F6;
+    --blue-secondary: #2563EB;
+    --yellow-primary: #eab308;
+    --white: #fff;
+    --black: #000;
+    --button-padding-base: 10px 20px;
+    --button-padding-large: 12px 26px;
+    --button-font-base: 16px;
+    --button-font-large: 18px;
+  
+    /* 日间主题变量 */
+    --text-primary: var(--black);
+    --text-secondary: #666;
+    --border-color: var(--blue-primary);
+    --card-bg: rgba(255, 255, 255, 1);
+    --button-hover: var(--blue-primary);
+    --input-bg: rgba(0, 0, 0, 0.05);
+    --highlight-button-bg: var(--blue-primary);
+    --highlight-button-text: var(--white);
+    --highlight-button-border: transparent;
+    --upload-icon-color: var(--blue-primary);
+  }
+  
+  /* 夜间主题变量 */
+  .containerDark {
+    --text-primary: var(--white);
+    --text-secondary: var(--white);
+    --border-color: var(--blue-primary);
+    --card-bg: rgba(0, 0, 0, 0.7);
+    --button-bg: transparent;
+    --button-hover: var(--yellow-primary);
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --highlight-button-bg: var(--yellow-primary);
+    --highlight-button-text: var(--black);
+    --highlight-button-border: rgba(234, 179, 8, 0.3);
+    --upload-icon-color: var(--blue-primary);
+    --preview-border-color: var(--yellow-primary);
+  }
+  
+  /* 搜索栏 */
+  .searchBar {
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    max-width: 600px;
+    margin: 0 auto 24px;
+    display: flex;
+    gap: 12px;
+  }
+  
+  .searchInput {
+    flex: 1;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: var(--button-font-base);
+  }
+  
+  .searchButton {
+    padding: 12px 24px;
+    border-radius: 6px;
+    background: var(--blue-primary);
+    color: white;
+    font-size: var(--button-font-base);
+    border: none;
+  }
+  
+  /* 总体预览模块 */
+  .previewArea {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  
+  /* 顶部控制栏 */
+  .controlBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  /* 左侧按钮组 */
+  .selectionButtons {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .selectButton {
+    padding: 8px 16px;
+    border-radius: 4px;
+    background: var(--button-bg);
+    color: var(--text-primary);
+    font-size: 12px;
+    border: none;
+  }
+  
+  .deleteSelectedButton {
+    padding: 8px 16px;
+    margin-left: 12px;
+    border-radius: 4px;
+    background: #ef4444;
+    color: white;
+    font-size: 12px;
+    border: none;
+  }
+  
+  /* 右侧搜索框 */
+  .searchGroup {
+    display: flex;
+    gap: 8px;
+    max-width: 300px;
+  }
+  
+  .searchInput {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 12px;
+  }
+  
+  .searchButton {
+    padding: 8px 16px;
+    border-radius: 4px;
+    background: var(--blue-primary);
+    color: white;
+    font-size: 12px;
+    border: none;
+  }
+  
+  /* 按钮基础样式 */
+  .buttonGroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  
+  .copyButton {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: none;
+  }
+  
+  /* 按钮变体 */
+  .markdownButton {
+    background: var(--yellow-primary) !important;
+    color: var(--black) !important;
+  }
+  
+  .urlButton {
+    background: var(--blue-primary) !important;
+    color: var(--white) !important;
+  }
+  
+  .bbcodeButton {
+    background: var(--blue-primary) !important;
+    color: var(--black) !important;
+  }
+  
+  /* 图片尺寸信息 */
+  .imageDimensions {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-right: 8px;
+  }
+  
+  /* 图片网格 */
+  .imageGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  /* 图片卡片 */
+  .imageCard {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 320px;
+    position: relative;
+  }
+  
+  .imageCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .imagePreview {
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+    height: 160px;
+    min-height: 160px;
+  }
+  
+  .imagePreview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .imageInfo {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* 继承 home.module.css 的顶栏样式 */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    backdrop-filter: blur(12px);
+    background: var(--card-bg);
+    z-index: 50;
+  }
+  
+  .headerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .button {
+    padding: var(--button-padding-base);
+    border-radius: 8px;
+    color: var(--text-primary);
+    background: var(--button-bg);
+    transition: all 0.2s;
+    font-size: var(--button-font-base);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+  }
+  
+  .button:hover {
+    background: var(--button-hover);
+    transform: translateY(-1px);
+  }
+  
+  /* 主内容区域 */
+  .main {
+    padding: 88px 24px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* 图片信息样式 */
+  .nameRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .fileName {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .detailsGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .detailItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  
+  .checkboxGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  /* 按钮悬停效果 */
+  .deleteButton:hover,
+  .renameButton:hover,
+  .saveButton:hover,
+  .copyButton:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  /* 夜间主题特殊处理 */
+  .containerDark .imageCard {
+    border-color: var(--preview-border-color);
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.1);
+  }
+  
+  .containerDark .renameButton {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--preview-border-color);
+  }
+  
+  /* 响应式布局 */
+  @media (max-width: 1200px) {
+    .imageGrid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .imageGrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .imageGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .imageGrid {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  } 
+  
+  /* 勾选框相关样式 */
+  .checkboxContainer {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 2;
+    background: var(--card-bg);
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .imageCheckbox {
+    width: 15px;
+    height: 14px;
+    cursor: pointer;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: white;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    transition: all 0.2s;
+    outline: none;
+  }
+  
+  .imageCheckbox:checked {
+    background-color: var(--blue-primary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    background-size: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-color: var(--blue-primary);
+  }
+  
+  /* 夜间主题样式 */
+  .containerDark .checkboxContainer {
+    border-color: var(--preview-border-color);
+    box-shadow: 0 0 8px var(--preview-border-color);
+  }
+  
+  .containerDark .imageCheckbox {
+    background-color: var(--card-bg);
+    border-color: var(--preview-border-color);
+  }
+  
+  .containerDark .imageCheckbox:checked {
+    background-color: var(--yellow-primary);
+    border-color: var(--yellow-primary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+  }
+  
+  /* 高亮按钮样式 */
+  .highlight {
+    background: var(--highlight-button-bg) !important;
+    color: var(--highlight-button-text) !important;
+    font-weight: 700;
+    border: 2px solid var(--highlight-button-border);
+    box-shadow: 0 0 10px var(--highlight-button-border);
+  } 
+  
+  /* 勾选框样式 */
+  .imageCheckbox {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: white;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    transition: all 0.2s;
+    outline: none;
+  }
+  
+  /* 如果想在focus时有自定义样式，可以添加这个 */
+  .imageCheckbox:focus {
+    outline: none;
+    /* 可以添加自定义的focus样式，比如: */
+    /* box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); */
+  }
+  
