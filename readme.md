@@ -1,5 +1,7 @@
 # Mazine
 
+[English](readme.md) · [简体中文](/MDs/Mazine_zh.md)
+
 Mazine is a **Serverless modern image hosting application** built on **Next.js 14** and object storage services, with the following features:
 
 - **No database management**: No longer worry about database failures causing image hosting to go down.
@@ -26,44 +28,30 @@ Due to the high risk of password leaks when handling CDN through open-source cod
 - ❤️ Image favorites functionality
 - 🔍 Image search feature
 
-## [Take a look in YouTube](https://youtu.be/SAv8wK-1I6s?si=fii0mtWhbZO6IM5T)
+## [✈️Take a look in YouTube](https://youtu.be/SAv8wK-1I6s?si=fii0mtWhbZO6IM5T)
 
 ![home_1.webp](/MDs/home_1.webp)
 
 ![manage_1.webp](/MDs/manage_1.webp)
 
-![manage2_1.webp](/MDs/manage2_1.webp)
+![manage_2.webp](/MDs/manage_2.webp)
 
 ---
 
-### [Q&A](/MDs/Declaration.md) — [Simplified Chinese](/MDs/Declaration_zh.md)
+### [Q&A☑️](/MDs/Declaration.md) — [中文✅](/MDs/Declaration_zh.md)
 
 ---
 
 ## Deployment
 
+### 1.Fork this repository
 
-
-### Fork this repository
-
-Then click the deploy button below.
-
-
-
-### Vercel One-Click Deployment
-
-
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fimage-hosting)
-
-
-
-### Using R2
+### 2.Using R2
 
 This project is developed and tested using Cloudflare R2 as the storage bucket, and other S3 buckets have not been tested.  
 If using R2 as the storage backend, the configuration example is:
 
-[R2-setting-guide](/MDs/R2-setting.md)
+[✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
 
 ```env
 S3_REGION=APAC
@@ -75,6 +63,24 @@ ACCESS_PASSWORD=ur-password
 NEXT_PUBLIC_CDN=xxx.r2.dev or Custom Domain
 NEXT_PUBLIC_LANGUAGE=EN
 ```
+
+### 3.Vercel Deployment
+
+#### import the respsitory to vercel
+
+![vercel_2.webp](/MDs/vercel_2.webp)
+
+![vercel_3.webp](/MDs/vercel_3.webp)
+
+#### setup your Environment Varicables
+
+![vercel_1.png](/MDs/vercel_1.png)
+
+#### deploy and spend 1 min on your drink!
+
+#### enjoy!!
+
+
 
 ## To-Do Features
 
