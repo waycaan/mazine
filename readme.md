@@ -68,9 +68,9 @@ NEXT_PUBLIC_LANGUAGE=EN
 
 #### import the respsitory to vercel
 
-![vercel_2.webp](/MDs/vercel_2.webp)
+![vercel_2.png](/MDs/vercel_2.png)
 
-![vercel_3.webp](/MDs/vercel_3.webp)
+![vercel_3.png](/MDs/vercel_3.png)
 
 #### setup your Environment Varicables
 
