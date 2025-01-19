@@ -1,0 +1,386 @@
+import { ImageFile, ManagedImage, LikedImage, ImageUploadResponse } from '@/types/image'
+import { ApiResponse } from '@/types/api'
+
+/**
+ * Copyright 2024 waycaan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const UTIL_INFO = {
+  id: 'mazine-util-api-v1.0.0',
+  name: 'APIClient',
+  author: 'waycaan',
+  version: '1.0.0',
+  license: 'Apache-2.0'
+} as const;
+
+// ===== 类型定义 =====
+interface GetImagesParams {
+  cursor?: string | null;
+  limit?: number;
+}
+
+interface CachedData<T> {
+  data: T[];
+  version: string;
+}
+
+// ===== 配置常量 =====
+const CACHE_CONFIG = {
+  version: '1.0.0',
+  managed: {
+    data: 'managed_images',
+    status: 'managed_images_status'
+  },
+  liked: {
+    data: 'liked_images',
+    status: 'liked_images_status'
+  }
+} as const;
+
+export const API_CONFIG = {
+  ITEMS_PER_PAGE: 15
+}
+
+// ===== 工具函数 =====
+/**
+ * 统一的错误处理函数
+ */
+const handleApiError = (error: unknown, defaultMessage: string): never => {
+  console.error(defaultMessage, error);
+  if (error instanceof Error) {
+    throw error;
+  }
+  throw new Error(defaultMessage);
+};
+
+/**
+ * 文件名编码/解码工具函数
+ */
+const fileNameUtils = {
+  encode: (fileName: string): string => {
+    try {
+      return encodeURIComponent(fileName)
+    } catch (e) {
+      console.error('文件名编码失败:', { fileName, error: e })
+      return fileName
+    }
+  },
+
+  decode: (fileName: string): string => {
+    try {
+      return decodeURIComponent(fileName)
+    } catch (e) {
+      console.error('文件名解码失败:', { fileName, error: e })
+      return fileName
+    }
+  }
+}
+
+// ===== 缓存工具 =====
+const cacheUtils = {
+  getCache<T>(key: string): T[] | null {
+    try {
+      const cached = localStorage.getItem(`${key}_cache`)
+      if (!cached) return null
+
+      const parsedCache: CachedData<T> = JSON.parse(cached)
+      const isModified = localStorage.getItem(`${key}_status`) === 'modified'
+      if (parsedCache.version !== CACHE_CONFIG.version || isModified) {
+        localStorage.removeItem(`${key}_cache`)
+        return null
+      }
+
+      return parsedCache.data
+    } catch {
+      return null
+    }
+  },
+
+  setCache<T>(key: string, data: T[]) {
+    const cacheData: CachedData<T> = {
+      data,
+      version: CACHE_CONFIG.version
+    }
+    localStorage.setItem(`${key}_cache`, JSON.stringify(cacheData))
+    localStorage.removeItem(`${key}_status`)
+  },
+
+  markManagedModification() {
+    localStorage.setItem(`${CACHE_CONFIG.managed.data}_status`, 'modified')
+  },
+
+  markLikedModification() {
+    localStorage.setItem(`${CACHE_CONFIG.liked.data}_status`, 'modified')
+  },
+
+  clearManagedModification() {
+    localStorage.removeItem(`${CACHE_CONFIG.managed.data}_status`)
+  },
+
+  clearLikedModification() {
+    localStorage.removeItem(`${CACHE_CONFIG.liked.data}_status`)
+  }
+}
+
+// ===== API 基础实现 =====
+/**
+ * 基础 API 请求函数
+ */
+const apiRequest = async <T>(
+  url: string, 
+  options: RequestInit = {}
+): Promise<T> => {
+  try {
+    console.log(`发起请求: ${url}`, options);
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+
+    console.log(`响应状态: ${response.status}`);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error(`请求失败: ${url}`, {
+        status: response.status,
+        statusText: response.statusText,
+        data
+      });
+      throw new Error(data.error || `请求失败: ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`API请求错误: ${url}`, error);
+    if (error instanceof Error) {
+      throw new Error(`请求失败: ${error.message}`);
+    }
+    throw new Error('请求失败: 未知错误');
+  }
+};
+
+// ===== API 导出 =====
+export const api = {
+  // 图片管理相关
+  images: {
+    get: async (cursor?: string | null): Promise<ManagedImage[]> => {
+      try {
+        if (!cursor) {
+          const cached = cacheUtils.getCache<ManagedImage>(CACHE_CONFIG.managed.data);
+          if (cached) {
+            console.log('使用图片列表缓存');
+            return cached;
+          }
+        }
+
+        console.log('从服务器获取数据');
+        const response = await apiRequest<{ files: ManagedImage[], likedFiles: string[] }>('/api/images');
+        console.log('原始响应数据:', response);
+
+        if (!response || !response.files) {
+          console.error('服务器返回数据格式错误:', response);
+          return [];
+        }
+
+        const data = response.files;
+        console.log('处理后的数据:', { count: data.length });
+
+        // 更新图片列表缓存
+        if (!cursor && data) {
+          cacheUtils.setCache(CACHE_CONFIG.managed.data, data);
+          cacheUtils.clearManagedModification(); // 显式清除修改标记
+          console.log('更新图片列表缓存成功');
+        }
+
+        // 更新收藏状态缓存
+        if (response.likedFiles) {
+          const likedImages = data
+            .filter(img => response.likedFiles.includes(img.fileName))
+            .map(img => ({
+              ...img,
+              isLiked: true
+            }));
+          cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
+          cacheUtils.clearLikedModification(); // 显式清除修改标记
+          console.log('更新收藏缓存成功');
+        }
+
+        return data;
+      } catch (error) {
+        console.error('获取图片列表失败:', {
+          error,
+          cursor,
+          stack: new Error().stack
+        });
+        throw error;
+      }
+    },
+
+    delete: async (fileNames: string[]): Promise<ApiResponse> => {
+      const response = await apiRequest<ApiResponse>('/api/images/batch', {
+        method: 'DELETE',
+        body: JSON.stringify({ fileNames })
+      })
+      
+      // 删除成功后标记缓存需要更新
+      if (response.success) {
+        // 检查是否删除了收藏的图片
+        const likedCache = cacheUtils.getCache<LikedImage>(CACHE_CONFIG.liked.data);
+        const deletedLikedImages = likedCache?.some(img => fileNames.includes(img.fileName));
+        
+        cacheUtils.markManagedModification(); // 标记图片缓存需要更新
+        if (deletedLikedImages) {
+          cacheUtils.markLikedModification(); // 如果删除了收藏图片，标记收藏缓存需要更新
+        }
+        
+        // 在后台更新缓存
+        api.images.get().catch(console.error);
+      }
+      
+      return response;
+    }
+  },
+
+  // 收藏相关
+  likes: {
+    get: async (cursor?: string | null): Promise<LikedImage[]> => {
+      try {
+        if (!cursor) {
+          const cached = cacheUtils.getCache<LikedImage>(CACHE_CONFIG.liked.data);
+          if (cached) {
+            console.log('使用收藏缓存数据');
+            return cached;
+          }
+        }
+
+        // 如果没有缓存，从图片列表中获取收藏数据
+        const response = await apiRequest<{ files: ManagedImage[], likedFiles: string[] }>('/api/images');
+        if (!response || !response.files || !response.likedFiles) {
+          console.error('服务器返回数据格式错误:', response);
+          return [];
+        }
+
+        const likedImages = response.files
+          .filter(img => response.likedFiles.includes(img.fileName))
+          .map(img => ({
+            ...img,
+            isLiked: true
+          }));
+
+        if (!cursor) {
+          cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
+          cacheUtils.clearLikedModification(); // 显式清除修改标记
+          console.log('更新收藏缓存成功');
+        }
+
+        return likedImages;
+      } catch (error) {
+        console.error('获取收藏列表失败:', error);
+        throw new Error('获取收藏列表失败');
+      }
+    },
+
+    toggle: async (fileName: string, method: 'POST' | 'DELETE'): Promise<ApiResponse> => {
+      const response = await apiRequest<ApiResponse>(`/api/likes/${fileNameUtils.encode(fileName)}`, { method })
+      
+      // 收藏操作成功后标记缓存需要更新
+      if (response.success) {
+        cacheUtils.markLikedModification(); // 只标记收藏缓存需要更新
+        // 在后台更新缓存
+        api.likes.get().catch(console.error);
+      }
+      
+      return response;
+    },
+
+    batch: async (fileNames: string[]): Promise<ApiResponse> => {
+      const results = await Promise.allSettled(
+        fileNames.map(fileName =>
+          apiRequest<ApiResponse>(`/api/likes/${fileNameUtils.encode(fileName)}`, {
+            method: 'POST'
+          })
+        )
+      )
+
+      const errors = results
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map(result => result.reason)
+
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: '部分收藏失败',
+          details: errors.map(e => e.message).join('; ')
+        }
+      }
+
+      // 批量收藏成功后标记缓存需要更新
+      cacheUtils.markLikedModification(); // 标记收藏缓存需要更新
+      // 在后台更新缓存
+      api.likes.get().catch(console.error)
+      
+      return { success: true }
+    }
+  },
+
+  // 上传相关
+  upload: async (formData: FormData): Promise<ImageUploadResponse> => {
+    // 获取原始文件名并编码
+    const files = formData.getAll('files') as File[]
+    
+    // 创建新的 FormData，添加编码后的文件名
+    const newFormData = new FormData()
+    files.forEach(file => {
+      // 保留原始文件用于上传
+      newFormData.append('files', file)
+      // 添加编码后的文件名作为额外信息
+      newFormData.append(`encoded_${file.name}`, fileNameUtils.encode(file.name))
+    })
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: newFormData
+    })
+
+    if (!response.ok) {
+      throw new Error('上传失败')
+    }
+
+    const data = await response.json()
+    
+    // 上传成功后在后台更新缓存
+    if (data.success) {
+      api.images.get().catch(console.error)
+    }
+    
+    return data
+  },
+
+  // 认证相关
+  auth: {
+    logout: async (): Promise<void> => {
+      await apiRequest('/api/auth', { method: 'DELETE' })
+    }
+  },
+
+  // 缓存管理
+  cache: {
+    markManagedModification: cacheUtils.markManagedModification,
+    markLikedModification: cacheUtils.markLikedModification
+  }
+} 
