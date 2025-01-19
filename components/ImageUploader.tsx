@@ -82,7 +82,6 @@ export default function ImageUploader({ onUpload, isUploading }: ImageUploaderPr
         })
       )
 
-      // 5. 最后一起上传原图和预览图
       onUpload(processedFiles, previewFiles)
     } catch (error) {
       console.error('图片处理失败:', error)
