@@ -9,13 +9,11 @@ export async function createPreviewImage(file: File, finalFileName: string): Pro
   })
 }
 
-// 内部函数：生成预览图 Blob
 async function generatePreviewBlob(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image()
     
     img.onload = () => {
-      // 计算等比缩放的尺寸
       const maxSize = 200
       let width = img.width
       let height = img.height
@@ -42,10 +40,8 @@ async function generatePreviewBlob(file: File): Promise<Blob> {
         return
       }
 
-      // 绘制图像到画布
       ctx.drawImage(img, 0, 0, width, height)
       
-      // 转换为 WebP 格式的 Blob
       canvas.toBlob(
         (blob) => {
           if (blob) {
@@ -55,7 +51,7 @@ async function generatePreviewBlob(file: File): Promise<Blob> {
           }
         },
         'image/webp',
-        0.8  // 质量参数
+        0.8 
       )
     }
 

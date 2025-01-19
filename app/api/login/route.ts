@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 // 24 hours
+        maxAge: 60 * 60 * 72
       })
       
       return response
@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     )
   } catch (error) {
-    // 保留错误日志，这对调试很重要
     console.error('Login error:', error)
     return NextResponse.json(
       { success: false, message: '服务器错误' },

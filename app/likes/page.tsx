@@ -39,21 +39,19 @@ import { api, API_CONFIG } from '@/utils/api'
 import { LikedImage } from '@/types/image'
 import { useI18n } from '@/i18n/context'
 
-// ===== Type Definitions =====
 type ViewMode = 'grid' | 'timeline'
 
 interface ScrollState {
-  cursor: string | null;  // Use uploadTime of last image as cursor
+  cursor: string | null;
   hasMore: boolean;
   loading: boolean;
 }
 
 interface LoadingState {
-  initial: boolean;     // Initial loading state
-  scroll: boolean;      // Scroll loading state
+  initial: boolean;
+  scroll: boolean;
 }
 
-// ===== Component Definitions =====
 /**
  * Image Card with Loading Component
  * @param props Component properties
@@ -67,13 +65,10 @@ function ImageCardWithLoad({ image, isSelectable, isSelected, onSelect, onPrevie
 }) {
   const { dimensions, isLoading, error } = useImageLoad(image.url)
 
-  // Handle click events
   const handleClick = (e: React.MouseEvent | React.ChangeEvent<HTMLInputElement>) => {
-    // If mouse event and Ctrl key is pressed, preview image
     if ('ctrlKey' in e && e.ctrlKey) {
       onPreview(image.url)
     } else {
-      // Otherwise select image
       onSelect()
     }
   }
@@ -105,11 +100,9 @@ console.log(
   "background: #3B82F6; color: white; padding: 5px; border-radius: 3px;"
 );
 
-// ===== Main Page Component =====
 export default function LikesPage() {
   const { t } = useI18n()
 
-  // ----- State Management -----
   const router = useRouter()
   const { isDarkMode, toggleTheme } = useTheme()
   const { selectedItems: selectedImages, toggleSelect, selectAll, deselectAll, invertSelection } = useSelection<string>()
@@ -129,7 +122,6 @@ export default function LikesPage() {
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const [showFooter, setShowFooter] = useState(false)
 
-  // ----- Event Handlers -----
   const handleLogout = async () => {
     try {
       await api.auth.logout()
@@ -144,19 +136,16 @@ export default function LikesPage() {
     if (!confirm(t('likes.confirmUnlike', { count: selectedImages.size }))) return;
 
     try {
-      // 1. 乐观更新本地状态
       setImages(prev => prev.filter(img => !selectedImages.has(img.fileName)));
 
-      // 2. 执行实际取消收藏
       await Promise.all(
         Array.from(selectedImages).map(fileName => 
           api.likes.toggle(fileName, 'DELETE')
         )
       );
 
-      // 3. 标记缓存需要更新并在后台刷新
       api.cache.markLikedModification();
-      api.likes.get();  // 更新收藏列表缓存
+      api.likes.get();
       fetchLikedImages();
       
       deselectAll();
@@ -170,7 +159,6 @@ export default function LikesPage() {
   const openPreview = (url: string) => setPreviewImage(url)
   const closePreview = () => setPreviewImage(null)
 
-  // ----- Side Effects -----
   useEffect(() => {
     fetchLikedImages()
   }, [])
@@ -192,7 +180,6 @@ export default function LikesPage() {
     return () => observer.disconnect();
   }, [scrollState.loading, scrollState.hasMore, scrollState.cursor])
 
-  // ----- 辅助函数 -----
   const fetchLikedImages = async (cursor?: string | null) => {
     if (!scrollState.hasMore || scrollState.loading) return;
     
@@ -204,14 +191,13 @@ export default function LikesPage() {
 
     try {
       const data = await api.likes.get(cursor);
-      // 过滤掉预览图记录
       const filteredData = data.filter(img => !img.fileName.startsWith('thumbs/'));
       const sortedImages = filteredData.sort((a, b) => 
         new Date(b.uploadTime).getTime() - new Date(a.uploadTime).getTime()
       );
       
       setImages(prev => {
-        if (!cursor) return sortedImages;  // 首次加载直接使用
+        if (!cursor) return sortedImages;
         const combined = [...prev, ...sortedImages];
         return Array.from(new Map(combined.map(img => [img.fileName, img])).values());
       });
@@ -230,7 +216,6 @@ export default function LikesPage() {
     }
   };
 
-  // Group images by date for timeline view
   const groupImagesByDate = (images: LikedImage[]) => {
     const groups: { [date: string]: LikedImage[] } = {}
 
@@ -256,7 +241,6 @@ export default function LikesPage() {
       }, {} as { [date: string]: LikedImage[] })
   }
 
-  // Filter images based on search term
   const getFilteredImages = (images: LikedImage[]) => {
     return images.filter(image => 
       image.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -266,12 +250,10 @@ export default function LikesPage() {
 
   const filteredImages = getFilteredImages(images)
 
-  // ----- Handle Scroll Events -----
   useEffect(() => {
     const handleScroll = () => {
       const mainElement = document.querySelector('main');
       if (mainElement) {
-        // Check if scrolled to bottom
         const isBottom = mainElement.scrollHeight - mainElement.scrollTop <= mainElement.clientHeight + 100;
         setShowFooter(isBottom);
       }
@@ -284,7 +266,6 @@ export default function LikesPage() {
     }
   }, []);
 
-  // ----- Render Method -----
   return (
     <div className={`${styles.container} ${isDarkMode ? styles.containerDark : ''}`}>
       <Header 

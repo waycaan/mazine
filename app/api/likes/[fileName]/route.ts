@@ -26,7 +26,6 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-// 创建 S3 客户端
 const s3Client = new S3Client({
   region: process.env.S3_REGION || 'us-east-1',
   credentials: {
@@ -37,7 +36,6 @@ const s3Client = new S3Client({
   forcePathStyle: true
 })
 
-// 收藏图片
 export async function POST(
   request: Request,
   { params }: { params: { fileName: string } }
@@ -49,14 +47,12 @@ export async function POST(
   }
 
   try {
-    // 解码文件名
     const fileName = decodeURIComponent(params.fileName)
     console.log('收藏请求:', { 
       原始文件名: params.fileName,
       解码后文件名: fileName 
     })
     
-    // 创建收藏标记
     const putCommand = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME || '',
       Key: `likes/${fileName}`,
@@ -78,7 +74,6 @@ export async function POST(
   }
 }
 
-// 取消收藏
 export async function DELETE(
   request: Request,
   { params }: { params: { fileName: string } }
@@ -90,7 +85,6 @@ export async function DELETE(
   }
 
   try {
-    // 解码文件名
     const fileName = decodeURIComponent(params.fileName)
     
     const deleteCommand = new DeleteObjectCommand({
@@ -101,7 +95,6 @@ export async function DELETE(
     await s3Client.send(deleteCommand)
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    // 如果文件不存在，也认为是取消成功
     if (error.$metadata?.httpStatusCode === 404) {
       return NextResponse.json({ success: true })
     }

@@ -73,7 +73,6 @@ type Locale = 'en' | 'zh'
 
 const getCurrentLang = (): Locale => process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() === 'en' ? 'en' : 'zh'
 
-// Helper function to get message
 const getMessage = (key: MessageKey): string => messages[getCurrentLang()][key];
 
 export async function GET() {
@@ -91,7 +90,6 @@ export async function GET() {
       MaxKeys: 1000
     }))
 
-    // 如果有更多数据，继续获取
     if (data.IsTruncated) {
       const nextData = await s3Client.send(new ListObjectsV2Command({
         Bucket: process.env.S3_BUCKET_NAME,
@@ -99,7 +97,6 @@ export async function GET() {
         ContinuationToken: data.NextContinuationToken
       }))
       
-      // 合并到 data.Contents
       if (nextData.Contents) {
         data.Contents = [...(data.Contents || []), ...nextData.Contents]
       }
@@ -107,25 +104,21 @@ export async function GET() {
 
     console.log('S3 response:', data)
 
-    // Separate images and like records
     const likedFiles = new Set<string>()
     const imageFiles = (data.Contents || []).filter(item => {
       const key = item.Key!
       if (key.startsWith('likes/')) {
-        // Extract original filename from likes directory
         likedFiles.add(key.replace('likes/', ''))
         return false
       }
       return true
     })
 
-    // Process image files
     const images = await Promise.all(imageFiles.map(async item => {
       const fileName = item.Key!
       const url = getPublicUrl(fileName)
       const previewUrl = getPublicUrl(`thumbs/${fileName}`)
 
-      // Get file metadata
       const headObject = await s3Client.send(new HeadObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
         Key: fileName
@@ -154,7 +147,6 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('List error:', error)
     return NextResponse.json({ 
       error: getMessage('listFailed')
     }, { status: 500 })

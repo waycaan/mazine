@@ -1,13 +1,17 @@
 /**
- * Mazine - Image Hosting
- * https://github.com/waycaan/mazine
- * 
- * @file API Route - Likes Management
- * @description Handle image favorites list and like status
- * @copyright (C) 2024 Mazine by waycaan
- * @license GNU GPL v3.0
- * @version 1.0.0
- * @author waycaan
+ * Copyright 2024 waycaan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 const messages = {
@@ -24,11 +28,11 @@ const messages = {
 const getCurrentLang = () => process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() === 'en' ? 'en' : 'zh'
 
 const API_INFO = {
-  id: 'mazine-api-likes-v1.0.0',
-  endpoint: '/api/likes',
+  id: 'mazine-api-likes-file-v1.0.0',
+  endpoint: '/api/likes/[fileName]',
   author: 'waycaan',
   version: '1.0.0',
-  license: 'GPL-3.0'
+  license: 'Apache-2.0'
 } as const;
 
 if (process.env.NODE_ENV === 'development') {
@@ -75,7 +79,6 @@ export async function GET() {
       return NextResponse.json([])
     }
 
-    // Return only filenames (remove likes/ prefix)
     const likedFiles = response.Contents
       .filter(item => item.Key && !item.Key.endsWith('/'))
       .map(item => item.Key!.replace('likes/', ''))

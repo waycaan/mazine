@@ -24,7 +24,7 @@ const HOOK_INFO = {
 
 import { useState, useEffect } from 'react'
 
-const MAX_CONCURRENT_LOADS = 5  // 最大并发数
+const MAX_CONCURRENT_LOADS = 5
 
 interface QueueItem {
   url: string
@@ -32,19 +32,16 @@ interface QueueItem {
   reject: (error: Error) => void
 }
 
-// 创建一个全局队列
 const queue: QueueItem[] = []
 let activeLoads = 0
 
 const loadImage = (url: string): Promise<{ width: number; height: number }> => {
   return new Promise((resolve, reject) => {
-    // 如果当前加载数量达到上限，加入队列
     if (activeLoads >= MAX_CONCURRENT_LOADS) {
       queue.push({ url, resolve, reject })
       return
     }
 
-    // 否则直接加载
     activeLoads++
     const img = new Image()
     img.src = url
@@ -52,13 +49,13 @@ const loadImage = (url: string): Promise<{ width: number; height: number }> => {
     img.onload = () => {
       activeLoads--
       resolve({ width: img.width, height: img.height })
-      processQueue()  // 处理队列中的下一个
+      processQueue()
     }
 
     img.onerror = () => {
       activeLoads--
       reject(new Error('图片加载失败'))
-      processQueue()  // 处理队列中的下一个
+      processQueue()
     }
   })
 }

@@ -53,9 +53,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-// 在文件顶部添加一个新的工具函数
 function sanitizeMetadataValue(value: string): string {
-  // 将所有非 ASCII 字符转换为 base64
   if (/[^\x00-\x7F]/.test(value)) {
     return `base64:${Buffer.from(value).toString('base64')}`;
   }
@@ -85,7 +83,6 @@ export async function POST(request: Request) {
 
     const uploadedFiles = []
 
-    // 使用索引遍历，确保原图和预览图一一对应
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       const previewFile = previewFiles[i]
@@ -97,7 +94,6 @@ export async function POST(request: Request) {
         const targetFormat = formData.get(`format_${file.name}`) as string
         const finalFileName = await generateFileName(decodedName, targetFormat)
 
-        // 上传原图
         const buffer = Buffer.from(await file.arrayBuffer())
         await s3Client.send(new PutObjectCommand({
           Bucket: process.env.S3_BUCKET_NAME,
@@ -114,13 +110,10 @@ export async function POST(request: Request) {
           }
         }))
 
-        // 检查预览图是否存在
         if (!(previewFile instanceof File)) {
-          console.error('预览图文件无效:', previewFile)
           throw new Error('预览图文件无效')
         }
 
-        // 上传预览图
         const previewBuffer = Buffer.from(await previewFile.arrayBuffer())
         const previewFileName = `thumbs/${finalFileName}`
         await s3Client.send(new PutObjectCommand({
@@ -162,7 +155,6 @@ export async function POST(request: Request) {
       files: uploadedFiles
     })
   } catch (error) {
-    console.error('Request processing failed:', error)
     return NextResponse.json(
       { success: false, error: '上传失败' },
       { status: 500 }
@@ -170,12 +162,9 @@ export async function POST(request: Request) {
   }
 }
 
-// 生成文件名函数
 async function generateFileName(originalName: string, targetFormat?: string): Promise<string> {
-  // 先处理 # 符号，将其替换为 "-hash-"
   const nameWithoutHash = originalName.replace(/#/g, '-hash-')
   
-  // 然后处理其他特殊字符
   const cleanName = nameWithoutHash
     .replace(/[<>:"/\\|?*]/g, '-')
     .replace(/\s+/g, ' ')
@@ -196,7 +185,6 @@ async function generateFileName(originalName: string, targetFormat?: string): Pr
   return newFileName
 }
 
-// 检查文件是否存在
 async function checkFileExists(fileName: string): Promise<boolean> {
   try {
     await s3Client.send(new HeadObjectCommand({

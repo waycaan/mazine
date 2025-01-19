@@ -92,7 +92,6 @@ async function getLikedImagesFromDB(): Promise<LikedImage[]> {
 
 export async function GET() {
   try {
-    // Check authentication
     const cookieStore = cookies()
     const auth = cookieStore.get('auth')
     if (!auth) {

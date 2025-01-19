@@ -25,7 +25,6 @@ const UTIL_INFO = {
   license: 'Apache-2.0'
 } as const;
 
-// 获取图片尺寸
 export function getImageDimensions(url: string): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -40,44 +39,36 @@ export function getImageDimensions(url: string): Promise<{ width: number; height
   })
 }
 
-// 检查文件类型
 export function isImageFile(file: File): boolean {
   return file.type.startsWith('image/')
 }
 
-// 检查文件大小
 export function checkFileSize(file: File, maxSize: number = 5 * 1024 * 1024): boolean {
   return file.size <= maxSize
 }
 
-// 生成预览URL
 export function createPreviewUrl(file: File): string {
   return URL.createObjectURL(file)
 }
 
-// 清理预览URL
 export function revokePreviewUrl(url: string): void {
   URL.revokeObjectURL(url)
 }
 
-// 文件大小限制常量
 export const FILE_SIZE_LIMITS = {
   SINGLE_FILE: 4.4 * 1024 * 1024,    // 4.4MB - Vercel限制
   BATCH_UPLOAD: 4.4 * 1024 * 1024,   // 4.4MB - 批量上传限制
   MAX_FILES: 20                       // 最大文件数
 } as const
 
-// 检查文件大小是否超出限制
 export function isOverSizeLimit(file: File): boolean {
   return file.size > FILE_SIZE_LIMITS.SINGLE_FILE
 }
 
-// 计算文件列表总大小
 export function calculateTotalSize(files: File[]): number {
   return files.reduce((total, file) => total + file.size, 0)
 }
 
-// 处理文件名重复
 export function generateUniqueFileName(fileName: string, existingFiles: string[]): string {
   if (!existingFiles.includes(fileName)) return fileName;
   
@@ -94,7 +85,6 @@ export function generateUniqueFileName(fileName: string, existingFiles: string[]
   return newFileName;
 }
 
-// WebP 转换函数
 export const convertToWebP = async (file: File, fileName?: string): Promise<File> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -132,19 +122,17 @@ export const convertToWebP = async (file: File, fileName?: string): Promise<File
 };
 
 const compressionOptions: ImageCompressionOptions = {
-  maxSizeMB: 4.4,  // Vercel限制
+  maxSizeMB: 4.4,
   useWebWorker: true,
   initialQuality: 0.85,
 }
 
-// 修改处理选项接口
 interface ProcessOptions {
   forceWebP?: boolean;
   forceCompress?: boolean;
   fileName?: string;
 }
 
-// 修改压缩函数，添加尺寸控制
 export const compressImage = async (
   file: File, 
   fileName?: string,
@@ -164,7 +152,6 @@ export const compressImage = async (
   }
 }
 
-// 修改处理函数
 export const processFile = async (
   file: File,
   options: ProcessOptions
@@ -173,12 +160,10 @@ export const processFile = async (
   const { forceWebP, forceCompress, fileName } = options;
   
   try {
-    // 1. 如果需要转换为WebP
     if (forceWebP && file.type.startsWith('image/')) {
       processedFile = await convertToWebP(processedFile, fileName);
     }
     
-    // 2. 如果需要压缩
     if (forceCompress || isOverSizeLimit(processedFile)) {
       processedFile = await compressImage(processedFile, fileName);
       
@@ -195,12 +180,10 @@ export const processFile = async (
   }
 }
 
-// 创建预览图的函数
 export async function createPreviewImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
-      // 计算等比缩放的尺寸
       const maxSize = 200
       let width = img.width
       let height = img.height
@@ -227,10 +210,8 @@ export async function createPreviewImage(file: File): Promise<Blob> {
         return
       }
 
-      // 绘制图像到画布
       ctx.drawImage(img, 0, 0, width, height)
       
-      // 转换为 WebP 格式的 Blob
       canvas.toBlob(
         (blob) => {
           if (blob) {
@@ -240,7 +221,7 @@ export async function createPreviewImage(file: File): Promise<Blob> {
           }
         },
         'image/webp',
-        0.8  // 质量参数
+        0.8 
       )
     }
 

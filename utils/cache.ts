@@ -41,7 +41,6 @@ export const imageCache = {
   get(): { images: ImageFile[], likedFiles: string[] } | null {
     if (typeof window === 'undefined') return null
     
-    // 检查是否有修改标记
     if (localStorage.getItem('recent_modification')) {
       this.clear()
       return null
@@ -52,7 +51,6 @@ export const imageCache = {
 
     const cacheData = JSON.parse(cached) as CacheData
     
-    // 检查版本
     if (cacheData.version !== CACHE_CONFIG.version) {
       this.clear()
       return null

@@ -57,7 +57,6 @@ const getCurrentLang = () => process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() ===
 
 export async function POST(request: Request) {
   try {
-    // 检查请求体是否为空
     if (!request.body) {
       console.error('Empty request body')
       return NextResponse.json({ 
@@ -68,7 +67,6 @@ export async function POST(request: Request) {
 
     const body = await request.json()
     
-    // 检查密码字段是否存在
     if (!body || typeof body.password !== 'string') {
       console.error('Invalid password format')
       return NextResponse.json({ 
@@ -79,7 +77,6 @@ export async function POST(request: Request) {
 
     const { password } = body
 
-    // 检查环境变量
     if (!process.env.ACCESS_PASSWORD) {
       console.error('ACCESS_PASSWORD not configured')
       return NextResponse.json({ 
@@ -88,16 +85,14 @@ export async function POST(request: Request) {
       }, { status: 500 })
     }
 
-    // 验证密码
     if (password === process.env.ACCESS_PASSWORD) {
       console.log('Login successful')
       
-      // 设置认证 cookie
       cookies().set('auth', 'true', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',  // 改为 'lax' 以支持跨站点请求
-        maxAge: 60 * 60 * 24 // 24小时
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 72
       })
       
       return NextResponse.json({ 
@@ -113,7 +108,6 @@ export async function POST(request: Request) {
     }, { status: 401 })
 
   } catch (error) {
-    // 详细记录错误
     console.error('Auth error:', error)
     return NextResponse.json({ 
       success: false,
@@ -127,7 +121,6 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    // 清除认证 cookie
     cookies().delete('auth')
     
     return NextResponse.json({ 
@@ -136,7 +129,6 @@ export async function DELETE(request: Request) {
     })
     
   } catch (error) {
-    console.error('Logout error:', error)
     return NextResponse.json({ 
       success: false,
       error: messages[getCurrentLang()].logoutFailed 

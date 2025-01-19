@@ -12,12 +12,10 @@
   --night-highlight: #eab308;
 }
 
-/* 添加规则禁用不必要的光标显示 */
 * {
   caret-color: transparent;
 }
 
-/* 只在需要的输入框中显示光标 */
 input[type="text"], 
 textarea {
   caret-color: auto;

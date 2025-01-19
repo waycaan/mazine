@@ -24,7 +24,6 @@ const SITE_CONFIG = {
  * limitations under the License.
  */
 
-// 组件标识
 const COMPONENT_INFO = {
   id: 'mazine-core-header-v1.0.0',
   name: 'Header',
@@ -40,7 +39,6 @@ interface HeaderProps {
   onLogout: () => void
 }
 
-// 代码水印
 console.log(
   "%c Mazine Core Component %c Header.tsx %c",
   "background: #3B82F6; color: white; padding: 5px 0 5px 5px; border-radius: 3px 0 0 3px;",
@@ -48,7 +46,6 @@ console.log(
   "background: transparent"
 );
 
-// 简单的完整性检查
 const verifyComponent = () => {
   return JSON.stringify(COMPONENT_INFO);
 };

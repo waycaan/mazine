@@ -41,27 +41,19 @@ import { api, API_CONFIG } from '@/utils/api'
 import type { ManagedImage, ImageDimensions } from '@/types/image'
 import { useI18n } from '@/i18n/context'
 
-// 网站标题和图标配置
-const SITE_CONFIG = {
-  title: "图床服务",
-  favicon: "/favicon.ico"
-}
-
-// ===== 类型定义 =====
 type ViewMode = 'grid' | 'timeline'
 
 interface ScrollState {
-  cursor: string | null;  // 使用最后一张图片的uploadTime作为cursor
+  cursor: string | null;
   hasMore: boolean;
   loading: boolean;
 }
 
 interface LoadingState {
-  initial: boolean;     // 初始加载状态
-  scroll: boolean;      // 滚动加载状态
+  initial: boolean;
+  scroll: boolean;
 }
 
-// ===== 组件定义 =====
 /**
  * 图片卡片加载组件
  * @param props 组件属性
@@ -81,7 +73,6 @@ function ImageCardWithLoad({
 }) {
   const { dimensions, isLoading, error } = useImageLoad(image.url)
 
-  // 处理点击事件
   const handleClick = (e: React.MouseEvent | React.ChangeEvent<HTMLInputElement>) => {
     if ('ctrlKey' in e && e.ctrlKey) {
       e.preventDefault();
@@ -112,16 +103,13 @@ function ImageCardWithLoad({
   )
 }
 
-// 代码水印
 console.log(
   "%c Powered by Mazine - Copyright (C) 2024 waycaan ",
   "background: #3B82F6; color: white; padding: 5px; border-radius: 3px;"
 );
 
-// ===== 主页面组件 =====
 export default function ManagePage() {
   const { t } = useI18n()
-  // ----- 状态管理 -----
   const router = useRouter()
   const { isDarkMode, toggleTheme } = useTheme()
   const { selectedItems: selectedImages, toggleSelect, selectAll, deselectAll, invertSelection } = useSelection<string>()
@@ -141,10 +129,8 @@ export default function ManagePage() {
   const [showFooter, setShowFooter] = useState(false)
   const [showLiked, setShowLiked] = useState(false)
   
-  // 添加 loadMoreRef 定义
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  // ----- 事件处理 -----
   const handleLogout = async () => {
     try {
       await api.auth.logout()
@@ -159,24 +145,20 @@ export default function ManagePage() {
     if (!confirm(t('manage.confirmLike', { count: selectedImages.size }))) return;
 
     try {
-      // 1. 乐观更新本地状态
       setImages(prev => prev.map(img => 
         selectedImages.has(img.fileName) 
           ? { ...img, isLiked: true } 
           : img
       ));
 
-      // 2. 执行实际操作
       await api.likes.batch(Array.from(selectedImages));
 
-      // 3. 只标记收藏缓存需要更新,因为只改变了文件状态
       api.cache.markLikedModification();
-      fetchImages();  // 不需要 await，让它在后台更新缓存
+      fetchImages();
       deselectAll();
     } catch (error) {
       console.error('批量收藏失败:', error);
       alert(t('manage.likeFailed'));
-      // 发生错误时重新获取数据以确保状态正确
       fetchImages();
     }
   };
@@ -186,19 +168,15 @@ export default function ManagePage() {
     if (!confirm(t('manage.confirmDelete', { count: selectedImages.size }))) return;
 
     try {
-      // 1. 乐观更新本地状态
       setImages(prev => prev.filter(img => !selectedImages.has(img.fileName)));
 
-      // 2. 执行实际删除
       await api.images.delete(Array.from(selectedImages));
 
-      // 3. 标记两个缓存需要更新并在后台刷新
-      api.cache.markManagedModification();  // 因为改变了文件数量
-      api.cache.markLikedModification();     // 因为可能删除了收藏的图片
+      api.cache.markManagedModification();
+      api.cache.markLikedModification();
       
-      // 4. 在后台更新两个缓存
-      fetchImages();         // 更新文件列表缓存
-      api.likes.get();      // 更新收藏列表缓存
+      fetchImages();
+      api.likes.get();
       
       deselectAll();
     } catch (error) {
@@ -211,7 +189,6 @@ export default function ManagePage() {
   const openPreview = (url: string) => setPreviewImage(url)
   const closePreview = () => setPreviewImage(null)
 
-  // ----- 辅助函数 -----
   const fetchImages = async (cursor?: string | null) => {
     if (!scrollState.hasMore || scrollState.loading) return;
      
@@ -223,16 +200,13 @@ export default function ManagePage() {
     }
 
     try {
-      // 获取图片列表和收藏列表
       const [data, likedImages] = await Promise.all([
         api.images.get(cursor),
         api.likes.get()
       ]);
 
-      // 过滤掉预览图记录
       const filteredData = data.filter(img => !img.fileName.startsWith('thumbs/'));
       
-      // 标记收藏状态
       const likedFileNames = likedImages.map(img => img.fileName);
       const newImages = filteredData.map(img => ({
         ...img,
@@ -242,9 +216,8 @@ export default function ManagePage() {
       );
       
       setImages(prev => {
-        if (!cursor) return newImages;  // 首次加载直接使用
+        if (!cursor) return newImages;
         const combined = [...prev, ...newImages];
-        // 确保没有重复并按时间排序
         return Array.from(new Map(combined.map(img => [img.fileName, img])).values())
           .sort((a, b) => new Date(b.uploadTime).getTime() - new Date(a.uploadTime).getTime());
       });
@@ -267,7 +240,6 @@ export default function ManagePage() {
   const groupImagesByDate = (images: ManagedImage[]) => {
     const groups: { [date: string]: ManagedImage[] } = {}
 
-    // 首先按日期分组
     images.forEach(image => {
       const date = new Date(image.uploadTime).toLocaleDateString('zh-CN', {
         year: 'numeric',
@@ -280,14 +252,12 @@ export default function ManagePage() {
       groups[date].push(image)
     })
 
-    // 对每个组内的图片按时间排序（从新到旧）
     Object.values(groups).forEach(group => {
       group.sort((a, b) => 
         new Date(b.uploadTime).getTime() - new Date(a.uploadTime).getTime()
       )
     })
 
-    // 返回排序后的对象（日期从新到旧）
     return Object.entries(groups)
       .sort(([dateA], [dateB]) => 
         new Date(dateB).getTime() - new Date(dateA).getTime()
@@ -299,22 +269,18 @@ export default function ManagePage() {
   }
 
   const getFilteredImages = (images: ManagedImage[]) => {
-    // 首先过滤掉预览图
     const nonThumbnailImages = images.filter(image => !image.fileName.startsWith('thumbs/'));
     
-    // 应用搜索过滤
     const searchFiltered = nonThumbnailImages.filter(image => {
       const matchesSearch = image.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         image.originalName.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
 
-    // 如果不显示收藏，则过滤掉收藏的图片
     const result = !showLiked 
       ? searchFiltered.filter(img => !img.isLiked)
       : searchFiltered;
 
-    // 最后按时间排序
     return result.sort((a, b) => 
       new Date(b.uploadTime).getTime() - new Date(a.uploadTime).getTime()
     );
@@ -322,7 +288,6 @@ export default function ManagePage() {
 
   const filteredImages = getFilteredImages(images)
 
-  // ----- 副作用 -----
   useEffect(() => {
     fetchImages()
   }, [])
@@ -344,7 +309,6 @@ export default function ManagePage() {
     return () => observer.disconnect();
   }, [scrollState.loading, scrollState.hasMore, scrollState.cursor]);
 
-  // ----- 渲染方法 -----
   return (
     <div className={`${styles.container} ${isDarkMode ? styles.containerDark : ''}`}>
       <Header 

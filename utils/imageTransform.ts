@@ -16,7 +16,6 @@
 
 import { ImageFile } from '@/types/image'
 
-// 生成公共URL
 export function getPublicUrl(fileName: string): string {
   if (process.env.NEXT_PUBLIC_CDN) {
     return `${process.env.NEXT_PUBLIC_CDN.replace(/\/$/, '')}/${fileName}`
@@ -26,7 +25,6 @@ export function getPublicUrl(fileName: string): string {
   return `${endpoint}/${bucket}/${fileName}`
 }
 
-// 分离图片和收藏记录
 export function separateImagesAndLikes(files: any[]): {
   imageFiles: any[]
   likedFiles: Set<string>
@@ -44,7 +42,6 @@ export function separateImagesAndLikes(files: any[]): {
   return { imageFiles, likedFiles }
 }
 
-// 处理图片元数据
 export function processImageMetadata(file: any): ImageFile {
   const fileName = file.Key
   const url = getPublicUrl(fileName)
@@ -58,13 +55,12 @@ export function processImageMetadata(file: any): ImageFile {
     markdown: `![${fileName}](${url})`,
     bbcode: `[img]${url}[/img]`,
     dimensions: {
-      width: 0,  // 这些值会在图片加载后更新
+      width: 0,
       height: 0
     }
   }
 }
 
-// 批量处理图片
 export function processImages(files: any[]): {
   images: ImageFile[]
   likedFiles: string[]
@@ -78,7 +74,6 @@ export function processImages(files: any[]): {
   }
 }
 
-// 导出转换函数
 export function transformImages(rawData: any) {
   const { Contents = [] } = rawData;
   

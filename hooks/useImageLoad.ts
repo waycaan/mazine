@@ -42,7 +42,6 @@ interface ImageDimensions {
   height: number
 }
 
-// 创建一个全局缓存
 const dimensionsCache = new Map<string, ImageDimensions>()
 
 export function useImageLoad(imageUrl: string | null) {
@@ -57,7 +56,6 @@ export function useImageLoad(imageUrl: string | null) {
       return
     }
 
-    // 检查缓存
     if (dimensionsCache.has(imageUrl)) {
       setDimensions(dimensionsCache.get(imageUrl)!)
       return
@@ -68,7 +66,6 @@ export function useImageLoad(imageUrl: string | null) {
 
     getImageDimensions(imageUrl)
       .then(dims => {
-        // 存入缓存
         dimensionsCache.set(imageUrl, dims)
         setDimensions(dims)
         setIsLoading(false)

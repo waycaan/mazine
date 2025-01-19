@@ -22,7 +22,6 @@ import zh from './locales/zh'
 type Locale = 'en' | 'zh'
 type Translations = typeof en
 
-// 从环境变量获取语言设置，默认为中文
 const DEFAULT_LOCALE = (process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() === 'en' ? 'en' : 'zh') as Locale
 const translations = { en, zh }
 

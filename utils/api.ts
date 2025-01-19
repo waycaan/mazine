@@ -25,7 +25,6 @@ const UTIL_INFO = {
   license: 'Apache-2.0'
 } as const;
 
-// ===== 类型定义 =====
 interface GetImagesParams {
   cursor?: string | null;
   limit?: number;
@@ -36,7 +35,6 @@ interface CachedData<T> {
   version: string;
 }
 
-// ===== 配置常量 =====
 const CACHE_CONFIG = {
   version: '1.0.0',
   managed: {
@@ -53,10 +51,6 @@ export const API_CONFIG = {
   ITEMS_PER_PAGE: 15
 }
 
-// ===== 工具函数 =====
-/**
- * 统一的错误处理函数
- */
 const handleApiError = (error: unknown, defaultMessage: string): never => {
   console.error(defaultMessage, error);
   if (error instanceof Error) {
@@ -65,9 +59,6 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
   throw new Error(defaultMessage);
 };
 
-/**
- * 文件名编码/解码工具函数
- */
 const fileNameUtils = {
   encode: (fileName: string): string => {
     try {
@@ -88,7 +79,6 @@ const fileNameUtils = {
   }
 }
 
-// ===== 缓存工具 =====
 const cacheUtils = {
   getCache<T>(key: string): T[] | null {
     try {
@@ -134,10 +124,6 @@ const cacheUtils = {
   }
 }
 
-// ===== API 基础实现 =====
-/**
- * 基础 API 请求函数
- */
 const apiRequest = async <T>(
   url: string, 
   options: RequestInit = {}
@@ -174,9 +160,7 @@ const apiRequest = async <T>(
   }
 };
 
-// ===== API 导出 =====
 export const api = {
-  // 图片管理相关
   images: {
     get: async (cursor?: string | null): Promise<ManagedImage[]> => {
       try {
@@ -200,14 +184,12 @@ export const api = {
         const data = response.files;
         console.log('处理后的数据:', { count: data.length });
 
-        // 更新图片列表缓存
         if (!cursor && data) {
           cacheUtils.setCache(CACHE_CONFIG.managed.data, data);
-          cacheUtils.clearManagedModification(); // 显式清除修改标记
+          cacheUtils.clearManagedModification();
           console.log('更新图片列表缓存成功');
         }
 
-        // 更新收藏状态缓存
         if (response.likedFiles) {
           const likedImages = data
             .filter(img => response.likedFiles.includes(img.fileName))
@@ -216,7 +198,7 @@ export const api = {
               isLiked: true
             }));
           cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
-          cacheUtils.clearLikedModification(); // 显式清除修改标记
+          cacheUtils.clearLikedModification();
           console.log('更新收藏缓存成功');
         }
 
@@ -237,18 +219,15 @@ export const api = {
         body: JSON.stringify({ fileNames })
       })
       
-      // 删除成功后标记缓存需要更新
       if (response.success) {
-        // 检查是否删除了收藏的图片
         const likedCache = cacheUtils.getCache<LikedImage>(CACHE_CONFIG.liked.data);
         const deletedLikedImages = likedCache?.some(img => fileNames.includes(img.fileName));
         
-        cacheUtils.markManagedModification(); // 标记图片缓存需要更新
+        cacheUtils.markManagedModification();
         if (deletedLikedImages) {
-          cacheUtils.markLikedModification(); // 如果删除了收藏图片，标记收藏缓存需要更新
+          cacheUtils.markLikedModification();
         }
         
-        // 在后台更新缓存
         api.images.get().catch(console.error);
       }
       
@@ -256,7 +235,6 @@ export const api = {
     }
   },
 
-  // 收藏相关
   likes: {
     get: async (cursor?: string | null): Promise<LikedImage[]> => {
       try {
@@ -268,7 +246,6 @@ export const api = {
           }
         }
 
-        // 如果没有缓存，从图片列表中获取收藏数据
         const response = await apiRequest<{ files: ManagedImage[], likedFiles: string[] }>('/api/images');
         if (!response || !response.files || !response.likedFiles) {
           console.error('服务器返回数据格式错误:', response);
@@ -284,7 +261,7 @@ export const api = {
 
         if (!cursor) {
           cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
-          cacheUtils.clearLikedModification(); // 显式清除修改标记
+          cacheUtils.clearLikedModification();
           console.log('更新收藏缓存成功');
         }
 
@@ -298,10 +275,8 @@ export const api = {
     toggle: async (fileName: string, method: 'POST' | 'DELETE'): Promise<ApiResponse> => {
       const response = await apiRequest<ApiResponse>(`/api/likes/${fileNameUtils.encode(fileName)}`, { method })
       
-      // 收藏操作成功后标记缓存需要更新
       if (response.success) {
-        cacheUtils.markLikedModification(); // 只标记收藏缓存需要更新
-        // 在后台更新缓存
+        cacheUtils.markLikedModification();
         api.likes.get().catch(console.error);
       }
       
@@ -329,26 +304,19 @@ export const api = {
         }
       }
 
-      // 批量收藏成功后标记缓存需要更新
-      cacheUtils.markLikedModification(); // 标记收藏缓存需要更新
-      // 在后台更新缓存
+      cacheUtils.markLikedModification(); 
       api.likes.get().catch(console.error)
       
       return { success: true }
     }
   },
 
-  // 上传相关
   upload: async (formData: FormData): Promise<ImageUploadResponse> => {
-    // 获取原始文件名并编码
     const files = formData.getAll('files') as File[]
     
-    // 创建新的 FormData，添加编码后的文件名
     const newFormData = new FormData()
     files.forEach(file => {
-      // 保留原始文件用于上传
       newFormData.append('files', file)
-      // 添加编码后的文件名作为额外信息
       newFormData.append(`encoded_${file.name}`, fileNameUtils.encode(file.name))
     })
 
@@ -363,7 +331,6 @@ export const api = {
 
     const data = await response.json()
     
-    // 上传成功后在后台更新缓存
     if (data.success) {
       api.images.get().catch(console.error)
     }
@@ -371,14 +338,12 @@ export const api = {
     return data
   },
 
-  // 认证相关
   auth: {
     logout: async (): Promise<void> => {
       await apiRequest('/api/auth', { method: 'DELETE' })
     }
   },
 
-  // 缓存管理
   cache: {
     markManagedModification: cacheUtils.markManagedModification,
     markLikedModification: cacheUtils.markLikedModification

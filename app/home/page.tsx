@@ -50,7 +50,6 @@ import { createPreviewImage } from '@/components/utils/thumbs'
 import { api, API_CONFIG } from '@/utils/api'
 import { useI18n } from '@/i18n/context'
 
-// Define upload file type
 interface UploadedFile {
   fileName: string;
   originalName: string;
@@ -62,16 +61,13 @@ interface UploadedFile {
   isLiked: boolean;
 }
 
-// Define upload error type
 interface UploadError {
   fileName: string;
   error: string;
 }
 
-// Extract timeout as constant
-const UPLOAD_TIMEOUT = 120000 // 2 minutes
+const UPLOAD_TIMEOUT = 120000
 
-// Format file size
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return '0 B';
   const k = 1024;
@@ -80,7 +76,6 @@ const formatFileSize = (bytes: number) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
 
-// Format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('zh-CN', {
@@ -92,13 +87,11 @@ const formatDate = (dateString: string) => {
   });
 };
 
-// Code watermark
 console.log(
   "%c Powered by Mazine - Copyright (C) 2024 waycaan ",
   "background: #3B82F6; color: white; padding: 5px; border-radius: 3px;"
 );
 
-// 修改 UploadStatus 类型定义
 interface UploadStatus {
   stage: 'idle' | 'checking' | 'processing' | 'uploading' | 'complete';
   totalFiles: number;
@@ -112,43 +105,35 @@ interface UploadStatus {
   errors: UploadError[];
 }
 
-// Simplify filename validation function
 const isValidFileName = (fileName: string): boolean => {
   try {
-    // 防止路径穿越
     if (fileName.includes('/') || fileName.includes('\\')) {
       return false;
     }
     
-    // 检查长度限制
     const encoded = encodeURIComponent(fileName);
-    return encoded.length <= 1024; // S3的限制
+    return encoded.length <= 1024;
   } catch (error) {
     return false;
   }
 };
 
-// 添加文件名清理函数
 const sanitizeFileName = (fileName: string): string => {
   return fileName.replace(/#/g, '-');
 };
 
-// Add total progress calculation function
 const calculateTotalProgress = (status: UploadStatus): number => {
   const totalSteps = status.totalFiles * 3; // Each file has three steps: check, process, upload
   let completedSteps = 0;
 
   switch (status.stage) {
     case 'checking':
-      // Progress in checking phase
       completedSteps = status.completedFiles * 3;
       break;
     case 'processing':
-      // Progress in processing phase
       completedSteps = (status.completedFiles * 3) + 1;
       break;
     case 'uploading':
-      // Progress in uploading phase
       completedSteps = (status.completedFiles * 3) + 2;
       break;
     case 'complete':
@@ -164,7 +149,6 @@ export default function HomePage() {
   const { isDarkMode, toggleTheme } = useTheme()
   const { t } = useI18n()
 
-  // 上传相关状态
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -172,21 +156,17 @@ export default function HomePage() {
   const [convertToWebP, setConvertToWebP] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // 预览相关状态
   const [currentImages, setCurrentImages] = useState<UploadedFile[]>([])
   const [copiedType, setCopiedType] = useState<string | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
 
-  // 添加收藏相关状态
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set())
 
-  // 在状态部分添加错误列表状态
   const [uploadErrors, setUploadErrors] = useState<Array<{
     fileName: string;
     error: string;
   }>>([]);
 
-  // 在组件中添加状态
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
     stage: 'idle',
     totalFiles: 0,
@@ -197,22 +177,18 @@ export default function HomePage() {
     errors: []
   });
 
-  // 添加新的状态
   const [maxImageSize, setMaxImageSize] = useState<number | null>(null);
 
-  // 处理文件上传
   const handleUpload = async (files: File[] | FileList) => {
     if (files.length === 0) return;
 
     const fileArray = Array.from(files);
 
-    // 检查文件数量限制
     if (fileArray.length > FILE_SIZE_LIMITS.MAX_FILES) {
       alert(`Maximum ${FILE_SIZE_LIMITS.MAX_FILES} files can be uploaded at once`);
       return;
     }
 
-    // 重置状态
     setUploadErrors([]);
     setIsUploading(true);
     setUploadStatus({
@@ -220,22 +196,18 @@ export default function HomePage() {
       totalFiles: fileArray.length,
       completedFiles: 0,
       processingDetails: 'Checking files...',
-      totalSteps: fileArray.length * 3, // 每个文件有三个步骤：检查、处理、上传
+      totalSteps: fileArray.length * 3, 
       completedSteps: 0,
       currentStep: '检查文件',
       errors: []
     });
 
-    // 获取现有文件名列表用于查重
     const existingFileNames = currentImages.map(img => img.fileName);
     let processedFiles: File[] = [];
     let previewFiles: File[] = [];
 
-    // 处理每个文件
     for (const file of fileArray) {
-      // 清理文件名中的特殊字符
       const cleanFileName = sanitizeFileName(file.name);
-      // 更新当前处理的文件名
       setUploadStatus((prev: UploadStatus) => ({
         ...prev,
         currentFile: file.name,
@@ -243,16 +215,14 @@ export default function HomePage() {
         currentStep: '检查文件'
       }));
 
-      // 检查文件名是否合法
       if (!isValidFileName(file.name)) {
         setUploadErrors((prev: UploadError[]) => [...prev, {
           fileName: file.name,
           error: '文件名不合法（不能包含#符号、特殊字符或过长），请重新命名后上传'
         }]);
-        continue; // 跳过这个文件的后续处理
+        continue; 
       }
 
-      // 生成唯一文件名
       const uniqueFileName = generateUniqueFileName(file.name, existingFileNames);
       if (uniqueFileName !== file.name) {
         setUploadStatus((prev: UploadStatus) => ({
@@ -265,9 +235,7 @@ export default function HomePage() {
       try {
         let processedFile: File | null = null;
 
-        // 检查文件大小是否超出限制
         if (isOverSizeLimit(file)) {
-          // 如果用户手动选择了处理方式（压缩或转换webp）
           if (compress || convertToWebP) {
             setUploadStatus((prev: UploadStatus) => ({
               ...prev,
@@ -284,8 +252,6 @@ export default function HomePage() {
               fileName: uniqueFileName
             });
           } else {
-            // 如果用户没有选择处理方式，进行渐进式自动优化
-            // 1. 首先尝试转换为WebP
             setUploadStatus((prev: UploadStatus) => ({
               ...prev,
               stage: 'processing',
@@ -301,7 +267,6 @@ export default function HomePage() {
               fileName: uniqueFileName
             });
 
-            // 2. 如果转换为WebP后仍然超限，尝试压缩
             if (processedFile && isOverSizeLimit(processedFile)) {
               setUploadStatus((prev: UploadStatus) => ({
                 ...prev,
@@ -320,7 +285,6 @@ export default function HomePage() {
             }
           }
           
-          // 如果所有处理后仍然超出限制，返回错误
           if (processedFile && isOverSizeLimit(processedFile)) {
             setUploadErrors((prev: UploadError[]) => [...prev, {
               fileName: file.name,
@@ -329,7 +293,6 @@ export default function HomePage() {
             continue;
           }
         } else if (convertToWebP || compress) {
-          // 如果文件大小在限制内，且用户选择了处理方式
           setUploadStatus((prev: UploadStatus) => ({
             ...prev,
             stage: 'processing',
@@ -350,7 +313,6 @@ export default function HomePage() {
 
         if (processedFile) {
           processedFiles.push(processedFile);
-          // 生成预览图
           try {
             const previewFile = await createPreviewImage(processedFile, uniqueFileName);
             previewFiles.push(previewFile);
@@ -372,7 +334,6 @@ export default function HomePage() {
       }
     }
 
-    // 开始上传阶段
     setUploadStatus((prev: UploadStatus) => ({
       ...prev,
       stage: 'uploading',
@@ -381,7 +342,6 @@ export default function HomePage() {
       completedSteps: prev.completedSteps + 1
     }));
 
-    // 逐个上传处理后的文件
     const totalFiles = processedFiles.length;
     for (let i = 0; i < processedFiles.length; i++) {
       const file = processedFiles[i];
@@ -396,7 +356,7 @@ export default function HomePage() {
 
         const formData = new FormData();
         formData.append('files', file);
-        formData.append('previews', previewFiles[i]); // 添加预览图
+        formData.append('previews', previewFiles[i]);
         formData.append(`format_${file.name}`, file.name.split('.').pop() || '');
 
         const response = await fetch('/api/upload', {
@@ -406,11 +366,9 @@ export default function HomePage() {
         const data = await response.json();
 
         if (data.success) {
-          // 1. 乐观更新UI
           const newFiles = data.files.filter((file: any) => !file.fileName.startsWith('thumbs/'))
           setCurrentImages(prev => [...newFiles, ...prev])
           
-          // 2. 标记缓存需要更新
           api.cache.markManagedModification()
           
           setUploadStatus((prev: UploadStatus) => ({
@@ -433,7 +391,6 @@ export default function HomePage() {
       }
     }
 
-    // 完成所有上传
     setUploadStatus((prev: UploadStatus) => ({
       ...prev,
       stage: 'complete',
@@ -458,7 +415,6 @@ export default function HomePage() {
     }, 1500);
   };
 
-  // 处理拖放
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -470,11 +426,10 @@ export default function HomePage() {
     e.stopPropagation()
     setDragActive(false)
 
-    const files = e.dataTransfer.files // 直接使用 FileList
+    const files = e.dataTransfer.files
     if (files.length > 0) await handleUpload(files)
   }
 
-  // 复制到剪贴板
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text)
       .then(() => {
@@ -483,7 +438,6 @@ export default function HomePage() {
       })
   }
 
-  // 获取图片列表 - home页面不需要获取所有图片
   const fetchImages = async () => {
     try {
       const data = await api.images.get()
@@ -494,27 +448,23 @@ export default function HomePage() {
     }
   }
 
-  // 处理收藏/取消收藏
   const handleLike = async (fileName: string) => {
     const currentImage = currentImages.find(img => img.fileName === fileName)
     const wasLiked = currentImage?.isLiked ?? false
 
     try {
-      // 1. 乐观更新UI
       setCurrentImages(prev => prev.map(img => 
         img.fileName === fileName 
           ? { ...img, isLiked: !wasLiked }
           : img
       ))
 
-      // 2. 执行实际操作
       const response = await api.likes.toggle(
         fileName, 
         wasLiked ? 'DELETE' : 'POST'
       )
 
       if (!response.success) {
-        // 如果失败，回滚到原始状态
         setCurrentImages(prev => prev.map(img => 
           img.fileName === fileName 
             ? { ...img, isLiked: wasLiked }
@@ -524,11 +474,9 @@ export default function HomePage() {
         return
       }
 
-      // 3. 标记缓存需要更新并在后台刷新
       api.cache.markLikedModification();
-      api.likes.get();  // 更新收藏列表缓存
+      api.likes.get();
     } catch (error) {
-      // 发生错误时回滚到原始状态
       setCurrentImages(prev => prev.map(img => 
         img.fileName === fileName 
           ? { ...img, isLiked: wasLiked }
@@ -538,7 +486,6 @@ export default function HomePage() {
     }
   }
 
-  // ----- 事件处理 -----
   const handleLogout = async () => {
     try {
       await api.auth.logout()
@@ -550,13 +497,11 @@ export default function HomePage() {
 
   const [showFooter, setShowFooter] = useState(false);
 
-  // 处理滚动事件
   useEffect(() => {
     const handleScroll = () => {
       const mainElement = document.querySelector('main');
       if (mainElement) {
-        // 检查是否滚动到底部
-        const isBottom = mainElement.scrollHeight - mainElement.scrollTop <= mainElement.clientHeight + 100; // 提前100px显示
+        const isBottom = mainElement.scrollHeight - mainElement.scrollTop <= mainElement.clientHeight + 50;
         setShowFooter(isBottom);
       }
     };

@@ -18,7 +18,6 @@ import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
 import { cookies } from 'next/headers'
 
-// API 组件标识
 const API_INFO = {
   id: 'mazine-api-image-operations-v1.0.0',
   endpoint: '/api/images/[fileName]',
@@ -27,7 +26,6 @@ const API_INFO = {
   license: 'Apache-2.0'
 } as const;
 
-// 代码水印
 if (process.env.NODE_ENV === 'development') {
   console.log(
     "%c Mazine API Endpoint %c /api/images/[fileName] %c",
@@ -37,7 +35,6 @@ if (process.env.NODE_ENV === 'development') {
   );
 }
 
-// 创建 S3 客户端
 const createS3Client = () => {
   const config = {
     region: process.env.S3_REGION || 'us-east-1',
@@ -54,20 +51,16 @@ const createS3Client = () => {
 
 const s3Client = createS3Client()
 
-// 检查 S3 连接
 const checkS3Connection = async () => {
   try {
-    // 尝试列出一个对象来测试连接
     const command = new HeadObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME || '',
       Key: 'test-connection'
     })
     await s3Client.send(command)
-    console.log('S3 连接正常')
     return true
   } catch (error: any) {
     if (error.$metadata?.httpStatusCode === 404) {
-      console.log('S3 连接正常（对象不存在）')
       return true
     }
     console.error('S3 连接测试失败:', {
@@ -111,10 +104,8 @@ const messages = {
   }
 } as const;
 
-// Helper function to get message
 const getMessage = (key: MessageKey): string => messages[getCurrentLang()][key];
 
-// 收藏图片
 export async function POST(
   request: Request,
   { params }: { params: { fileName: string } }
@@ -126,7 +117,6 @@ export async function POST(
   }
 
   try {
-    // Check S3 connection
     if (!await checkS3Connection()) {
       return NextResponse.json(
         { success: false, error: getMessage('s3ConnectionFailed') },
@@ -134,12 +124,10 @@ export async function POST(
       )
     }
 
-    // Decode filename
     let fileName = params.fileName
     try {
       fileName = decodeURIComponent(fileName)
       
-      // 只保留基本安全检查
       if (fileName.includes('/') || fileName.includes('\\')) {
         throw new Error('文件名不能包含路径分隔符')
       }
@@ -158,7 +146,6 @@ export async function POST(
       endpoint: process.env.S3_ENDPOINT
     })
 
-    // Check if original image exists
     const headCommand = new HeadObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME,
       Key: fileName
@@ -173,7 +160,6 @@ export async function POST(
         lastModified: originalObject.LastModified
       })
 
-      // Create a lightweight mark file
       const putCommand = new PutObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
         Key: `likes/${fileName}`,
@@ -235,7 +221,6 @@ export async function POST(
       )
     }
   } catch (error: any) {
-    // 记录完整的错误信息
     console.error('Failed to like image:', {
       originalFileName: params.fileName,
       error: error.message,
@@ -256,7 +241,6 @@ export async function POST(
   }
 }
 
-// 取消收藏
 export async function DELETE(
   request: Request,
   { params }: { params: { fileName: string } }
@@ -268,7 +252,6 @@ export async function DELETE(
   }
 
   try {
-    // 检查 S3 连接
     if (!await checkS3Connection()) {
       return NextResponse.json(
         { success: false, error: 'S3 服务连接失败' },
@@ -276,7 +259,6 @@ export async function DELETE(
       )
     }
 
-    // 对文件名进行解码
     let fileName = params.fileName
     try {
       fileName = decodeURIComponent(fileName)
@@ -303,7 +285,6 @@ export async function DELETE(
       }))
       console.log(`取消收藏成功: ${fileName}`)
 
-      // 删除预览图
       const previewFileName = `thumbs/${fileName}`
       await s3Client.send(new DeleteObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
@@ -338,7 +319,6 @@ export async function DELETE(
       )
     }
   } catch (error: any) {
-    // 记录完整的错误信息
     console.error('取消收藏失败:', {
       originalFileName: params.fileName,
       error: error.message,

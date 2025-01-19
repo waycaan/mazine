@@ -28,11 +28,11 @@ const LAYOUT_INFO = {
 
 export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() === 'en' 
-    ? 'Mazine - Where Amazing Meets Every spark'
-    : 'Mazine - 惊喜在每一丝灵感中相遇',
+    ? 'Mazine | Where Amazing Meets Every spark!'
+    : 'Mazine | 惊喜在每一丝灵感中相遇!',
   description: process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() === 'en' 
-    ? 'Mazine, Where Amazing Meets Every spark'
-    : '美真，惊喜在每一丝灵感中相遇'
+    ? 'Mazine, Where Amazing Meets Every spark!'
+    : '美真，惊喜在每一丝灵感中相遇!'
 }
 
 export default function RootLayout({

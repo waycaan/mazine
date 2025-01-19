@@ -1072,7 +1072,7 @@
   --highlight-button-border: rgba(234, 179, 8, 0.3);/* 夜间高亮按钮边框色 */
   --upload-icon-color: var(--yellow-primary);      /* 夜间上传图标颜色 */
   --preview-border-color: var(--yellow-primary);   /* 夜间预览边框颜色 */
-  background: linear-gradient(180deg, rgba(234,179,8,1) 0%, rgba(155,123,25,1) 18%, rgba(103,86,36,1) 38%, rgba(48,47,47,1) 59%, rgba(0,0,0,1) 100%);
+  background: linear-gradient(180deg, rgba(82,74,58,1) 0%, rgba(48,47,47,1) 27%, rgba(0,0,0,1) 100%);
 }
 
 .containerDark .urlInput.liked {
