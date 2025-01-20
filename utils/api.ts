@@ -162,7 +162,7 @@ const apiRequest = async <T>(
 
 export const api = {
   images: {
-    get: async (cursor?: string | null): Promise<ManagedImage[]> => {
+    get: async (cursor?: string | null): Promise<ImagesResponse> => {
       try {
         if (!cursor) {
           const cached = cacheUtils.getCache<ManagedImage>(CACHE_CONFIG.managed.data);
@@ -332,8 +332,14 @@ export const api = {
     const data = await response.json()
     
     if (data.success) {
+      console.log('上传成功，开始更新缓存');
       cacheUtils.markManagedModification();
-      api.images.get().catch(console.error)
+      try {
+        const images = await api.images.get();
+        console.log('缓存更新成功，图片数量:', images.length);
+      } catch (error) {
+        console.error('缓存更新失败:', error);
+      }
     }
     
     return data
