@@ -351,7 +351,7 @@ export const api = {
       cacheUtils.markManagedModification();  // 标记缓存需要更新
       const images = await api.images.get();  // 等待获取新数据完成
       console.log('缓存已更新，图片数量:', images.length);
-      cacheUtils.clearLikedModification();
+      cacheUtils.markManagedModification();
     }
     
     return data
