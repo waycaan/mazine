@@ -84,16 +84,13 @@ const cacheUtils = {
     try {
       const cached = localStorage.getItem(`${key}_cache`)
       if (!cached) {
-        console.log(`缓存不存在: ${key}`);
         return null;
       }
 
       const parsedCache: CachedData<T> = JSON.parse(cached)
       const isModified = localStorage.getItem(`${key}_status`) === 'modified'
-      console.log(`检查缓存状态: ${key}`, { isModified, version: parsedCache.version });
       
       if (parsedCache.version !== CACHE_CONFIG.version || isModified) {
-        console.log(`缓存无效: ${key}`, { reason: isModified ? '已修改' : '版本不匹配' });
         localStorage.removeItem(`${key}_cache`)
         return null
       }
@@ -101,7 +98,6 @@ const cacheUtils = {
       console.log(`使用缓存: ${key}`, { dataLength: parsedCache.data.length });
       return parsedCache.data
     } catch (error) {
-      console.error(`缓存读取错误: ${key}`, error);
       return null
     }
   },
@@ -114,26 +110,21 @@ const cacheUtils = {
     }
     localStorage.setItem(`${key}_cache`, JSON.stringify(cacheData))
     localStorage.removeItem(`${key}_status`)
-    console.log(`缓存设置完成: ${key}`);
   },
 
   markManagedModification() {
-    console.log('标记managed缓存需要更新');
     localStorage.setItem(`${CACHE_CONFIG.managed.data}_status`, 'modified')
   },
 
   markLikedModification() {
-    console.log('标记liked缓存需要更新');
     localStorage.setItem(`${CACHE_CONFIG.liked.data}_status`, 'modified')
   },
 
   clearManagedModification() {
-    console.log('清除managed缓存修改标记');
     localStorage.removeItem(`${CACHE_CONFIG.managed.data}_status`)
   },
 
   clearLikedModification() {
-    console.log('清除liked缓存修改标记');
     localStorage.removeItem(`${CACHE_CONFIG.liked.data}_status`)
   }
 }
@@ -152,7 +143,6 @@ const apiRequest = async <T>(
       }
     });
 
-    console.log(`响应状态: ${response.status}`);
     const data = await response.json();
     
     if (!response.ok) {
@@ -166,7 +156,6 @@ const apiRequest = async <T>(
 
     return data;
   } catch (error) {
-    console.error(`API请求错误: ${url}`, error);
     if (error instanceof Error) {
       throw new Error(`请求失败: ${error.message}`);
     }
@@ -181,28 +170,21 @@ export const api = {
         if (!cursor) {
           const cached = cacheUtils.getCache<ManagedImage>(CACHE_CONFIG.managed.data);
           if (cached) {
-            console.log('使用图片列表缓存，数据长度:', cached.length);
             return cached;
           }
         }
 
-        console.log('从服务器获取数据');
         const response = await apiRequest<{ files: ManagedImage[], likedFiles: string[] }>('/api/images');
-        console.log('原始响应数据:', { filesCount: response.files?.length, likedCount: response.likedFiles?.length });
 
         if (!response || !response.files) {
-          console.error('服务器返回数据格式错误:', response);
           return [];
         }
 
         const data = response.files;
-        console.log('处理后的数据:', { count: data.length });
 
         if (!cursor && data) {
-          console.log('准备更新managed缓存，数据长度:', data.length);
           cacheUtils.setCache(CACHE_CONFIG.managed.data, data);
           cacheUtils.clearManagedModification();
-          console.log('更新图片列表缓存成功');
         }
 
         if (response.likedFiles) {
@@ -212,10 +194,8 @@ export const api = {
               ...img,
               isLiked: true
             }));
-          console.log('准备更新liked缓存，数据长度:', likedImages.length);
           cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
           cacheUtils.clearLikedModification();
-          console.log('更新收藏缓存成功');
         }
 
         return data;
@@ -257,14 +237,12 @@ export const api = {
         if (!cursor) {
           const cached = cacheUtils.getCache<LikedImage>(CACHE_CONFIG.liked.data);
           if (cached) {
-            console.log('使用收藏缓存数据');
             return cached;
           }
         }
 
         const response = await apiRequest<{ files: ManagedImage[], likedFiles: string[] }>('/api/images');
         if (!response || !response.files || !response.likedFiles) {
-          console.error('服务器返回数据格式错误:', response);
           return [];
         }
 
@@ -278,12 +256,10 @@ export const api = {
         if (!cursor) {
           cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
           cacheUtils.clearLikedModification();
-          console.log('更新收藏缓存成功');
         }
 
         return likedImages;
       } catch (error) {
-        console.error('获取收藏列表失败:', error);
         throw new Error('获取收藏列表失败');
       }
     },
@@ -348,12 +324,11 @@ export const api = {
     const data = await response.json()
     
     if (data.success) {
-      cacheUtils.markManagedModification();  // 标记缓存需要更新
-      const images = await api.images.get();  // 等待获取新数据完成
-      console.log('缓存已更新，图片数量:', images.length);
       cacheUtils.markManagedModification();
+      const images = await api.images.get();
+      cacheUtils.clearManagedModification();
     }
-    
+
     return data
   },
 
