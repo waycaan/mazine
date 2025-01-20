@@ -28,7 +28,7 @@ Due to the high risk of password leaks when handling CDN through open-source cod
 - ❤️ Image favorites functionality
 - 🔍 Image search feature
 
-## [✈️Take a look in YouTube](https://youtu.be/SAv8wK-1I6s?si=fii0mtWhbZO6IM5T)
+## [✈️Take a look in YouTube](https://youtu.be/sdJEfDgE-yw?si=FvmTRFBZTk5P2CTf)
 
 ![home_1.webp](/MDs/home_1.webp)
 
