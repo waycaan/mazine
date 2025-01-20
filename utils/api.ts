@@ -181,14 +181,14 @@ export const api = {
         if (!cursor) {
           const cached = cacheUtils.getCache<ManagedImage>(CACHE_CONFIG.managed.data);
           if (cached) {
-            console.log('使用图片列表缓存');
+            console.log('使用图片列表缓存，数据长度:', cached.length);
             return cached;
           }
         }
 
         console.log('从服务器获取数据');
         const response = await apiRequest<{ files: ManagedImage[], likedFiles: string[] }>('/api/images');
-        console.log('原始响应数据:', response);
+        console.log('原始响应数据:', { filesCount: response.files?.length, likedCount: response.likedFiles?.length });
 
         if (!response || !response.files) {
           console.error('服务器返回数据格式错误:', response);
@@ -199,6 +199,7 @@ export const api = {
         console.log('处理后的数据:', { count: data.length });
 
         if (!cursor && data) {
+          console.log('准备更新managed缓存，数据长度:', data.length);
           cacheUtils.setCache(CACHE_CONFIG.managed.data, data);
           cacheUtils.clearManagedModification();
           console.log('更新图片列表缓存成功');
@@ -211,6 +212,7 @@ export const api = {
               ...img,
               isLiked: true
             }));
+          console.log('准备更新liked缓存，数据长度:', likedImages.length);
           cacheUtils.setCache(CACHE_CONFIG.liked.data, likedImages);
           cacheUtils.clearLikedModification();
           console.log('更新收藏缓存成功');
