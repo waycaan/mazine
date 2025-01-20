@@ -55,7 +55,14 @@
   - 第 74 行调整 WebP 优化率
 
 - **登录页面背景**：可自定义背景图片，路径：`/app/login/page.tsx` 第 18 行。
-
+  默认背景
+  ```
+  const [bgImage, setBgImage] = useState<string | null>('null')
+  ```
+  自定义背景
+  ```
+  const [bgImage, setBgImage] = useState<string | null>('https://example.com/background.png')
+  ```
 ------
 
 ## 使用心得与建议
