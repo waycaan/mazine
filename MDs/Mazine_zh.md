@@ -54,9 +54,9 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 本项目开发和测试均基于CloudFlare R2作为存储桶，其他S3存储桶尚未测试
 如果使用R2作为存储后端，配置示例：
 
-[✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
+### [✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
 
-\`\`\`env
+```
 S3_REGION=APAC
 S3_ACCESS_KEY=your-access-key
 S3_SECRET_KEY=your-secret-key
@@ -65,34 +65,40 @@ S3_ENDPOINT=http://localhost:9000
 S3_FORCE_PATH_STYLE=true
 NEXT_PUBLIC_CDN=xxx.r2.dev or 自定义域名
 NEXT_PUBLIC_LANGUAGE=EN
-\`\`\`
+```
 
 
 ### 3.Vercel 部署
 
-#### 将这个forked的仓库导入到vercel里面
+#### - 将这个forked的仓库导入到vercel里面
 
 ![vercel_2.png](/MDs/vercel_2.png)
 
 ![vercel_3.png](/MDs/vercel_3.png)
 
-#### 设置好你的环境变量
+#### - 设置好你的环境变量
 
 ![vercel_1.png](/MDs/vercel_1.png)
 
-#### 点击deploy 并等待1分钟！
+#### - 点击deploy 并等待1分钟！
 
-#### 搞掂!!
+#### - 搞掂!!
 
 ---
 
 ## 待开发功能
 
+---
 Alist S3适配
+
 其他 S3适配
+
 适配手机上传功能（仅上传页面，保留图片收藏功能，不含管理和收藏页面）
+
 docker部署
+
 cloudflare worker版本（更完整，但受限于worker的政策，我还是再等待看看）
+
 ---
 
 ### 技术栈
