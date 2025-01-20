@@ -1,43 +1,70 @@
-## Declaration
+## Image Upload Restrictions
 
-### Image Upload Limitations
-- **Vercel Free Plan Restrictions**: Due to Vercel's Free Plan resource limitations, images larger than **4.5MB** cannot be uploaded.
-- **Automatic WebP Conversion**: When uploading images larger than **4.4MB**, the system will automatically convert the image to WebP format.
-  - If you do not wish to convert to WebP, you can enable the compression feature to compress the image yourself.
-  - If the image is still larger than 4.4MB after compression, it will be automatically marked as an upload failure.
+- **Vercel Free Plan Limitations**: Images larger than **4.5MB** cannot be uploaded.
+- **Automatic WebP Conversion**:
+  - Images larger than **4.4MB** are automatically converted to WebP format. If the size still exceeds the limit, the system will enforce compression, and in case of failure, an error will be reported.
+  - If WebP conversion is not preferred, manual compression can be enabled. However, images exceeding **4.4MB** after manual compression will be considered as failed uploads.
 
-### Upload Time Limitation
-- **10-Second Upload Time**: Vercel's Free Plan limits each upload to 10 seconds.
-  - If there are too many files or network congestion, the upload may fail, and the page will display an `uploadserror` prompt.
-  - This issue is due to Vercel's limitations, not a problem with the code. Failed files can be re-uploaded based on the prompt.
+## Upload Time Limitations
 
-### Data Usage Instructions
-- During upload, the backend API of Vercel's server is called, while image loading and other operations are handled directly by the client via access to the storage bucket (e.g., R2).
-- Tests have shown that download traffic is directly accessed by the browser from the storage bucket, so there is no need to worry about exceeding traffic limits.
+- **10-Second Limit**: Each upload session is restricted to a maximum of 10 seconds.
+  - Uploading too many files at once or experiencing network delays may result in failure, with an `uploadserror` message displayed.
+  - This limitation is due to Vercel's constraints, and failed files can be re-uploaded following the prompt.
 
-### Image Loading and Blurry Preview
-- **Blurring**: When loading images in the `imagecard`, the system will prioritize fetching preview images from the `thumbs` folder (maximum size of 200, in WebP format).
-  - If no preview image is available, the original image will be loaded.
-- **File Extension Consistency**: When the WebP conversion feature is enabled, the generated file extension will remain the same as the source image, but the file format will be WebP.
-  - This is to avoid conflicts between files with the same name but different formats; when uploading a file with the same name, the system will automatically add a number to the new file.
+## Traffic and Loading Information
 
-### Application Features and Limitations
-- **Single User Design**: This image hosting service is designed for individual use and does not support multi-user scenarios. If multi-user access is needed, it is recommended to redeploy on Vercel.
+- **Traffic Usage**: The upload process uses Vercel backend APIs, while image loading is handled via the client accessing the storage bucket (e.g., R2). There are no concerns about exceeding traffic limits for downloads.
+- **Blur Preview and Loading Optimization**:
+  - When loading images, the system prioritizes showing preview images from the `thumbs` folder (max size: 200px, WebP format). If no preview is available, the original image is loaded.
+  - Original images can be previewed directly on the upload page, reducing caching pressure during normal operations.
+
+## File Naming and Duplication Handling
+
+- **Consistent File Extensions**: When WebP conversion is enabled, file extensions remain consistent with the source image, though the MIME type changes to WebP. This avoids duplication caused by identical file names but different formats.
+- **Auto-Numbering for Duplicate Files**: Duplicate uploads will have sequential numbers appended to their file names (e.g., `logo_1.png`, `logo_2.png`).
+
+## Application Features and Limitations
+
+- **Single-User Design**: This application is designed for personal use and does not support multi-user scenarios. For multi-user setups, redeployment on Vercel is recommended.
+- **Favorites Feature**:
+  - Favorited images generate marker files in the storage bucket without occupying additional space.
+  - A "Show Favorites" toggle is available on the management page (default off), allowing easy viewing and deletion of favorited images.
 - **Upload and Download**:
-  - The image hosting service is for uploading images only and does not provide bulk download functionality. Users can download images individually via direct links.
-  - For bulk downloads, it is recommended to use Alist for unified management.
-- **Bookmarking Functionality**:
-  - The system will create a `likes` folder in the storage bucket to store bookmark marker files for favorite images (does not take up space).
-  - The management page has a "Display Bookmarked Images" toggle (default off). When enabled, users can directly delete bookmarked images.
-  - The bookmark page does not provide a delete function; it is designed for quickly finding frequently used images.
+  - Batch downloads are not supported; individual images can be downloaded via direct links. For batch downloads, tools like Alist are recommended.
 
-### Data Security
-- **No Database Dependency**: This application does not use a database. All image data is linked through CDN and stored in S3.
-  - Even if the page is compromised or fails, images will still be accessible. After redeploying, the page functionality remains the same.
-- **File Renaming**: S3 does not support renaming files; it only supports overwriting operations.
-  - Files with duplicate names will automatically have a number appended.
-  - Files with `#` in the name are not supported for upload, but long and complex file names will display correctly.
+## Data Security and Privacy
 
-### Additional Notes
-- **Not an S3 Manager**: This application is an image hosting service, not an S3 file manager. If you need to manage other file types such as videos or documents, it is recommended to use Alist.
-- **Response Speed**: After uploading or deleting images, all image metadata needs to be refreshed for consistency. The response speed has been optimized as much as possible, but is still influenced by Vercel and S3 limitations.
+- **Database-Free**: This application does not use a database. Image data is stored in S3 and accessed via CDN, ensuring continued availability even if the webpage is inaccessible.
+- **File Security**: Environment variables are stored in Vercel, and data access requires authorization. Image CDN links are independent of the webpage address, allowing free sharing of image URLs.
+
+## Additional Information
+
+- **Response Time**: After uploading or deleting images, metadata must be refreshed to maintain consistency. While constrained by Vercel and S3 limitations, response times are optimized as much as possible.
+- **Compression Rate Configuration**:
+  - Default compression is set to 0.85, with a WebP optimization rate of 0.9. You can adjust these settings in the following file:
+    ```
+    components/ImageUploader.tsx
+    ```
+    - Line 50: Adjust compression rate.
+    - Line 74: Adjust WebP optimization rate.
+    
+- **Login Page Background**: The login page background can be customized by modifying the following line,
+  Located in /app/login/page.tsx at line 18. Example:
+  default background
+  ```
+  const [bgImage, setBgImage] = useState<string | null>('null')
+  ```
+  custom background
+  ```
+  const [bgImage, setBgImage] = useState<string | null>('https://example.com/background.png')
+  ```
+
+## Something I want to say:
+
+### 1.Favorites Feature Design:
+- The management page includes only "Favorites" and "Delete" functionalities. Favorited images are hidden by default and can be displayed using the showlikes toggle. A distinct UI style ensures users are reminded to avoid accidental deletion.
+- Canceling favorites requires actions on the "Favorites Page," using multiple steps to confirm important operations.
+
+### 2.Post-Upload Favorites:
+- Images can be marked as favorites immediately after uploading. Users can undo this action right away, streamlining the process to align with practical usage habits.
+  
