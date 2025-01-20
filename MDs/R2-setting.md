@@ -55,7 +55,6 @@
 ---
 
 # manage your API tokens
-![R2-10.png](/MDs/R2-setting/R2-10.png)
 ![R2-11.png](/MDs/R2-setting/R2-11.png)
 ![R2-12.png](/MDs/R2-setting/R2-12.png)
 ![R2-13.png](/MDs/R2-setting/R2-13.png)
