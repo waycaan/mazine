@@ -53,13 +53,13 @@ If using R2 as the storage backend, the configuration example is:
 
 [✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
 
-```env
+```
 S3_REGION=APAC
 S3_ACCESS_KEY=your-access-key
 S3_SECRET_KEY=your-secret-key
 S3_BUCKET_NAME=your-bucket
-S3_ENDPOINT=http://localhost:9000
-ACCESS_PASSWORD=ur-password
+S3_ENDPOINT=your-endpoint
+ACCESS_PASSWORD=your-password
 NEXT_PUBLIC_CDN=xxx.r2.dev or Custom Domain
 NEXT_PUBLIC_LANGUAGE=EN
 ```
@@ -111,9 +111,9 @@ The source code, documentation, and all related resources of this project must n
 
 ------
 
-## License Statement
+## Apache License 2.0
 
-This project is licensed under the Apache License 2.0. You are free to use, modify, and distribute the project as long as you retain the copyright notice of the original author.
+This project is licensed under the **Apache License 2.0**. You are free to use, modify, and distribute the project as long as you retain the copyright notice of the original author.
 
 ------
 
