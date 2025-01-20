@@ -176,7 +176,7 @@ const apiRequest = async <T>(
 
 export const api = {
   images: {
-    get: async (cursor?: string | null): Promise<ImagesResponse> => {
+    get: async (cursor?: string | null): Promise<ManagedImage[]> => {
       try {
         if (!cursor) {
           const cached = cacheUtils.getCache<ManagedImage>(CACHE_CONFIG.managed.data);
