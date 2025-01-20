@@ -83,43 +83,57 @@ const cacheUtils = {
   getCache<T>(key: string): T[] | null {
     try {
       const cached = localStorage.getItem(`${key}_cache`)
-      if (!cached) return null
+      if (!cached) {
+        console.log(`缓存不存在: ${key}`);
+        return null;
+      }
 
       const parsedCache: CachedData<T> = JSON.parse(cached)
       const isModified = localStorage.getItem(`${key}_status`) === 'modified'
+      console.log(`检查缓存状态: ${key}`, { isModified, version: parsedCache.version });
+      
       if (parsedCache.version !== CACHE_CONFIG.version || isModified) {
+        console.log(`缓存无效: ${key}`, { reason: isModified ? '已修改' : '版本不匹配' });
         localStorage.removeItem(`${key}_cache`)
         return null
       }
 
+      console.log(`使用缓存: ${key}`, { dataLength: parsedCache.data.length });
       return parsedCache.data
-    } catch {
+    } catch (error) {
+      console.error(`缓存读取错误: ${key}`, error);
       return null
     }
   },
 
   setCache<T>(key: string, data: T[]) {
+    console.log(`设置缓存: ${key}`, { dataLength: data.length });
     const cacheData: CachedData<T> = {
       data,
       version: CACHE_CONFIG.version
     }
     localStorage.setItem(`${key}_cache`, JSON.stringify(cacheData))
     localStorage.removeItem(`${key}_status`)
+    console.log(`缓存设置完成: ${key}`);
   },
 
   markManagedModification() {
+    console.log('标记managed缓存需要更新');
     localStorage.setItem(`${CACHE_CONFIG.managed.data}_status`, 'modified')
   },
 
   markLikedModification() {
+    console.log('标记liked缓存需要更新');
     localStorage.setItem(`${CACHE_CONFIG.liked.data}_status`, 'modified')
   },
 
   clearManagedModification() {
+    console.log('清除managed缓存修改标记');
     localStorage.removeItem(`${CACHE_CONFIG.managed.data}_status`)
   },
 
   clearLikedModification() {
+    console.log('清除liked缓存修改标记');
     localStorage.removeItem(`${CACHE_CONFIG.liked.data}_status`)
   }
 }
@@ -162,7 +176,7 @@ const apiRequest = async <T>(
 
 export const api = {
   images: {
-    get: async (cursor?: string | null): Promise<ManagedImage[]> => {
+    get: async (cursor?: string | null): Promise<ImagesResponse> => {
       try {
         if (!cursor) {
           const cached = cacheUtils.getCache<ManagedImage>(CACHE_CONFIG.managed.data);
@@ -332,14 +346,8 @@ export const api = {
     const data = await response.json()
     
     if (data.success) {
-      console.log('上传成功，开始更新缓存');
       cacheUtils.markManagedModification();
-      try {
-        const images = await api.images.get();
-        console.log('缓存更新成功，图片数量:', images.length);
-      } catch (error) {
-        console.error('缓存更新失败:', error);
-      }
+      api.images.get().catch(console.error);
     }
     
     return data
