@@ -332,6 +332,7 @@ export const api = {
     const data = await response.json()
     
     if (data.success) {
+      cacheUtils.markManagedModification();
       api.images.get().catch(console.error)
     }
     
