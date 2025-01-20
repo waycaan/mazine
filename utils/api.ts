@@ -348,14 +348,10 @@ export const api = {
     const data = await response.json()
     
     if (data.success) {
-      try {
-        console.log('上传成功，开始更新缓存');
-        await api.images.get();  // 等待更新完成
-        console.log('缓存更新完成');
-      } catch (error) {
-        console.error('缓存更新失败:', error);
-        cacheUtils.markManagedModification();  // 如果更新失败，标记需要更新
-      }
+      cacheUtils.markManagedModification();  // 标记缓存需要更新
+      const images = await api.images.get();  // 等待获取新数据完成
+      console.log('缓存已更新，图片数量:', images.length);
+      cacheUtils.clearLikedModification();
     }
     
     return data
