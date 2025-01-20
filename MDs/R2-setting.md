@@ -24,6 +24,10 @@
 
 # You have 3 variables now,continued!
 
+- S3_REGION
+- S3_BUCKET_NAME
+- NEXT_PUBLIC_CDN
+
 ## CORS policy rules
 ![R2-9.png](/MDs/R2-setting/R2-9.png)
 
@@ -71,4 +75,6 @@
 - S3_ACCESS_KEY
 - S3_ENDPOINT
 
-  
+# now you have 6 variables! the rest part of variables are
+- your password
+- your language
