@@ -241,7 +241,7 @@ export const api = {
         
         cacheUtils.markManagedModification();
         if (deletedLikedImages) {
-          cacheUtils.markLikedModification();
+          cacheUtils.clearManagedModification();
         }
         
         api.images.get().catch(console.error);
