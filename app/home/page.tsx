@@ -370,6 +370,7 @@ export default function HomePage() {
           setCurrentImages(prev => [...newFiles, ...prev])
           
           api.cache.markManagedModification()
+          api.images.get().catch(console.error)
           
           setUploadStatus((prev: UploadStatus) => ({
             ...prev,
