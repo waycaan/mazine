@@ -107,7 +107,7 @@ The code and resources in this project are for personal or non-commercial use on
 
 ### **Prohibited Distribution Without Permission**
 
-The source code, documentation, and all related resources of this project must not be publicly disclosed, released, distributed, or shared by any third-party institution or company without permission from the copyright holder. Specifically, **this project is prohibited from being published on MSDN or any similar platform**, whether it's the full code or parts of it.
+The source code, documentation, and all related resources of this project must not be publicly disclosed, released, distributed, or shared by any third-party institution or company without permission from the copyright holder. Specifically, **this project is prohibited from being published on CSDN or any similar platform**, whether it's the full code or parts of it.
 
 ------
 
