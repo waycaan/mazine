@@ -25,7 +25,7 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 - ❤️ 图片收藏功能
 - 🔍 图片搜索功能
 
-## [✈️Take a look in YouTube](https://youtu.be/SAv8wK-1I6s?si=fii0mtWhbZO6IM5T)
+## [✈️Take a look on YouTube](https://youtu.be/sdJEfDgE-yw?si=FvmTRFBZTk5P2CTf)
 
 
 
