@@ -127,13 +127,7 @@ JWT_SECRET=
 
 ------
 
-### **Commercial Use Restriction**
-
-The code and resources in this project are for personal or non-commercial use only. Commercial use in any form is strictly prohibited. Without explicit written permission from the copyright holder, this code cannot be used for any profit-making or commercial activities, including but not limited to product development, service provision, or commercial promotion.
-
-------
-
-### **Prohibited Distribution Without Permission**
+### **Prohibited Published On Any Other Platform Without Permission**
 
 The source code, documentation, and all related resources of this project must not be publicly disclosed, released, distributed, or shared by any third-party institution or company without permission from the copyright holder. Specifically, **this project is prohibited from being published on CSDN or any similar platform**, whether it's the full code or parts of it.
 
