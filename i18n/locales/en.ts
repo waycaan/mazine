@@ -91,6 +91,7 @@ export default {
     title: "Mazine",
     subtitle: "-Where Amazing Meets Every spark-",
     password: "Enter access password",
+    username: "imput Your Username",
     button: {
       login: "Login",
       loading: "Logging in..."
