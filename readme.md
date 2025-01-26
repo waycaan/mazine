@@ -80,7 +80,7 @@ If using R2 as the storage backend, the configuration example is:
 [✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
 
 ```
-S3_REGION=APAC
+S3_REGION= bucket-region
 S3_ACCESS_KEY=your-access-key
 S3_SECRET_KEY=your-secret-key
 S3_BUCKET_NAME=your-bucket
