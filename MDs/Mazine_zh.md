@@ -46,9 +46,27 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 
 
 ## 部署
-
+---
 ### 1.Fork 这个仓库
+---
+### 2.生成登录必要的环境变量
 
+#### a.生成 环境变量  `JWT_SECRET`  JWT 密钥：
+
+- 访问 https://generate-secret.vercel.app/32
+
+- 这个网站会自动生成一个安全的随机密钥。
+
+#### b. 生成环境变量  `AUTH_PASSWORD_HASH`  密码哈希：
+
+访问 https://bcrypt-generator.com/
+
+- 输入你想要的密码
+
+- 选择 10 轮加密（rounds）
+
+- 点击生成，得到哈希值
+---
 ### 2.使用 R2
 
 本项目开发和测试均基于CloudFlare R2作为存储桶，其他S3存储桶尚未测试
@@ -61,12 +79,14 @@ S3_REGION=APAC
 S3_ACCESS_KEY=your-access-key
 S3_SECRET_KEY=your-secret-key
 S3_BUCKET_NAME=your-bucket
-S3_ENDPOINT=http://localhost:9000
-S3_FORCE_PATH_STYLE=true
+S3_ENDPOINT=http:bucket-endpoint
 NEXT_PUBLIC_CDN=xxx.r2.dev or 自定义域名
 NEXT_PUBLIC_LANGUAGE=EN
+AUTH_USERNAME=
+AUTH_PASSWORD_HASH=
+JWT_SECRET=
 ```
-
+---
 
 ### 3.Vercel 部署
 
