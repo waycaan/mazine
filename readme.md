@@ -8,6 +8,12 @@ Mazine is a **Serverless modern image hosting application** built on **Next.js 1
 - **Code Hosting**: The project code is hosted on **GitHub** and deployed to **Vercel**.
 - **Environment Variable Management**: Passwords and related environment variables must be manually added to Vercel to ensure the security of sensitive information.
 
+## Updates
+
+- Enhanced login verification by using encrypted password hashes and storing random JWTs in cookies for access authentication.
+- Improved cache loading strategy to maximize response speed.
+
+  
 ### CDN Security and Recommended Configuration
 
 Due to the high risk of password leaks when handling CDN through open-source code, this project does not include any CDN conversion code. It is recommended to manage the CDN using the following methods:
@@ -43,10 +49,30 @@ Due to the high risk of password leaks when handling CDN through open-source cod
 ---
 
 ## Deployment
-
+---
 ### 1.Fork this repository
 
-### 2.Using R2
+---
+### 2. Generate Required Environment Variables for Login
+
+#### a. Generate the environment variable `JWT_SECRET` (JWT Secret Key):
+
+- Visit https://generate-secret.vercel.app/32
+
+- This website will automatically generate a secure random key.
+
+#### b. Generate the environment variable `AUTH_PASSWORD_HASH` (Password Hash):
+
+- Visit https://bcrypt-generator.com/
+
+- Enter the desired password.
+
+- Select 10 rounds of encryption.
+
+- Click "Generate" to obtain the hash value.
+  
+---
+### 3.Using R2
 
 This project is developed and tested using Cloudflare R2 as the storage bucket, and other S3 buckets have not been tested.  
 If using R2 as the storage backend, the configuration example is:
@@ -58,12 +84,14 @@ S3_REGION=APAC
 S3_ACCESS_KEY=your-access-key
 S3_SECRET_KEY=your-secret-key
 S3_BUCKET_NAME=your-bucket
-S3_ENDPOINT=your-endpoint
-ACCESS_PASSWORD=your-password
-NEXT_PUBLIC_CDN=xxx.r2.dev or Custom Domain
+S3_ENDPOINT=http:bucket-endpoint
+NEXT_PUBLIC_CDN=xxx.r2.dev or 自定义域名
 NEXT_PUBLIC_LANGUAGE=EN
+AUTH_USERNAME=
+AUTH_PASSWORD_HASH=
+JWT_SECRET=
 ```
-
+---
 ### 3.Vercel Deployment
 
 #### import the respsitory to vercel
@@ -79,7 +107,7 @@ NEXT_PUBLIC_LANGUAGE=EN
 #### deploy and spend 1 min on your drink!
 
 #### enjoy!!
-
+---
 
 
 ## To-Do Features
