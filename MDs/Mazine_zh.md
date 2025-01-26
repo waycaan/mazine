@@ -7,10 +7,6 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 - **代码托管**：项目代码托管在 **GitHub**，并部署到 **Vercel** 上运行。  
 - **环境变量管理**：密码和相关环境变量需手动填写到 Vercel 中，确保敏感信息安全。  
 
-
-## recent renew
-- 已加强登录密码加密以及采用JWT来进行cookies授权方式，基本满足一般用户需求。
-
 ### CDN 安全性与推荐配置
 由于通过开源代码处理 CDN 存在较高的密码泄露风险，因此本项目不会添加任何CDN转化代码。建议采用以下方式管理 CDN：  
 1. **R2 自定义子域名**：通过配置 R2 的专用域名实现安全访问。  
@@ -53,21 +49,10 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 
 ### 1.Fork 这个仓库
 
-### 2.密码变量准备
+### 2.使用 R2
 
-#### 变量 `JWT_SECRET` 通过网页生成JWT 密钥 [点击这里](https://generate-secret.vercel.app/32)
-
-- 这个网站会自动生成一个安全的随机密钥。
-
-#### 变量 `AUTH_PASSWORD_HASH`通过网页加密你的密码,生成**密码hash** [点击这里](https://bcrypt-generator.com/)
-- 输入你想要的密码
-- 选择 10~12 轮加密（rounds）
-- 点击生成，得到哈希值
-  
-### 3.使用 R2
-
-- 本项目开发和测试均基于CloudFlare R2作为存储桶，其他S3存储桶尚未测试
-- 如果使用R2作为存储后端，配置示例：
+本项目开发和测试均基于CloudFlare R2作为存储桶，其他S3存储桶尚未测试
+如果使用R2作为存储后端，配置示例：
 
 ### [✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
 
@@ -76,16 +61,14 @@ S3_REGION=APAC
 S3_ACCESS_KEY=your-access-key
 S3_SECRET_KEY=your-secret-key
 S3_BUCKET_NAME=your-bucket
-S3_ENDPOINT=bucket-endpoint
+S3_ENDPOINT=http://localhost:9000
+S3_FORCE_PATH_STYLE=true
 NEXT_PUBLIC_CDN=xxx.r2.dev or 自定义域名
-NEXT_PUBLIC_LANGUAGE=zh
-JWT_SECRET= your-generated-JWT
-AUTH_PASSWORD_HASH= your-password hash
-AUTH_USERNAME= your-username
+NEXT_PUBLIC_LANGUAGE=EN
 ```
 
 
-### 4.Vercel 部署
+### 3.Vercel 部署
 
 #### - 将这个forked的仓库导入到vercel里面
 

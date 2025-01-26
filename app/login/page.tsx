@@ -6,16 +6,32 @@ import Image from 'next/image'
 import styles from './login.module.css'
 import { useI18n } from '@/i18n/context'
 
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
 export default function LoginPage() {
   const { t } = useI18n()
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [password, setPassword] = useState('')
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    username: '', 
+    password: ''
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
   
   const [bgImage, setBgImage] = useState<string | null>('null')
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setCredentials(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
@@ -26,14 +42,15 @@ export default function LoginPage() {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify(credentials)
       })
+
+      const data = await res.json()
 
       if (res.ok) {
         router.push(searchParams.get('from') || '/home')
       } else {
-        const data = await res.json()
-        setError(data.message || t('login.error.failed'))
+        setError(data.error || t('login.error.failed'))
       }
     } catch (error) {
       setError(t('login.error.network'))
@@ -59,9 +76,22 @@ export default function LoginPage() {
 
         <form className={styles.loginForm} onSubmit={handleLogin}>
           <input
+            type="text"
+            name="username"
+            value={credentials.username}
+            onChange={handleInputChange}
+            placeholder={t('login.username')}
+            required
+            className={styles.input}
+            disabled={isLoading}
+            autoComplete="username"
+          />
+
+          <input
             type="password"
-            value={password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            name="password"
+            value={credentials.password}
+            onChange={handleInputChange}
             placeholder={t('login.password')}
             required
             className={styles.input}

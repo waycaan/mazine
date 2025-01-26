@@ -22,7 +22,11 @@
     "@types/react-dom": "18.2.15",
     "typescript": "5.2.2",
     "browser-image-compression": "^2.0.2",
-    "@types/browser-image-compression": "^1.0.4"
+    "@types/browser-image-compression": "^1.0.4",
+    "jose": "^4.x.x",
+    "bcryptjs": "^2.x.x",
+    "@types/bcryptjs": "^2.x.x",
+    "zod": "^3.x.x"
   },
   "devDependencies": {
     "autoprefixer": "10.4.16",

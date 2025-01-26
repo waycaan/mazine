@@ -25,6 +25,8 @@ const API_INFO = {
 import { NextResponse } from "next/server";
 import { S3Client, ListObjectsV2Command, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { cookies } from 'next/headers'
+import { withAuth } from '@/lib/auth-middleware'
+import { NextRequest } from 'next/server'
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION!,
@@ -75,15 +77,7 @@ const getCurrentLang = (): Locale => process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCa
 
 const getMessage = (key: MessageKey): string => messages[getCurrentLang()][key];
 
-export async function GET() {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ 
-      error: getMessage('unauthorized')
-    }, { status: 401 })
-  }
-
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     const data = await s3Client.send(new ListObjectsV2Command({
       Bucket: process.env.S3_BUCKET_NAME,
@@ -147,8 +141,16 @@ export async function GET() {
     })
 
   } catch (error) {
+    console.error('Failed to get image list:', error)
     return NextResponse.json({ 
       error: getMessage('listFailed')
     }, { status: 500 })
   }
-} 
+})
+
+export const POST = withAuth(async (request: NextRequest) => {
+  return NextResponse.json({ 
+    success: true,
+    message: '上传成功'
+  })
+}) 

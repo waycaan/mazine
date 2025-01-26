@@ -26,6 +26,8 @@ import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
 import { cookies } from 'next/headers'
 import { createPreviewImage } from '@/components/utils/thumbs'
+import { withAuth } from '@/lib/auth-middleware'
+import type { NextRequest } from 'next/server'
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION!,
@@ -60,16 +62,7 @@ function sanitizeMetadataValue(value: string): string {
   return value;
 }
 
-export async function POST(request: Request) {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json(
-      { success: false, message: '未登录' },
-      { status: 401 }
-    )
-  }
-
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
@@ -154,13 +147,15 @@ export async function POST(request: Request) {
       success: true,
       files: uploadedFiles
     })
+
   } catch (error) {
+    console.error('Upload failed:', error)
     return NextResponse.json(
       { success: false, error: '上传失败' },
       { status: 500 }
     )
   }
-}
+})
 
 async function generateFileName(originalName: string, targetFormat?: string): Promise<string> {
   const nameWithoutHash = originalName.replace(/#/g, '-hash-')

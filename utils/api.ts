@@ -48,8 +48,10 @@ const CACHE_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  ITEMS_PER_PAGE: 15
-}
+  ITEMS_PER_PAGE: 15,
+  MAX_UPLOAD_SIZE: 4.4 * 1024 * 1024, // 4.4MB
+  SUPPORTED_FORMATS: ['jpg', 'jpeg', 'png', 'gif', 'webp']
+} as const;
 
 const handleApiError = (error: unknown, defaultMessage: string): never => {
   console.error(defaultMessage, error);
@@ -134,32 +136,28 @@ const apiRequest = async <T>(
   options: RequestInit = {}
 ): Promise<T> => {
   try {
-    console.log(`发起请求: ${url}`, options);
     const response = await fetch(url, {
       ...options,
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       }
     });
 
-    const data = await response.json();
-    
     if (!response.ok) {
-      console.error(`请求失败: ${url}`, {
+      console.error(`请求失败:`, {
+        url,
         status: response.status,
-        statusText: response.statusText,
-        data
+        statusText: response.statusText
       });
-      throw new Error(data.error || `请求失败: ${response.status}`);
+      throw new Error('请求失败: ' + response.statusText);
     }
 
-    return data;
+    return response.json();
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`请求失败: ${error.message}`);
-    }
-    throw new Error('请求失败: 未知错误');
+    console.error('API请求错误:', error);
+    throw error;
   }
 };
 
@@ -182,7 +180,7 @@ export const api = {
 
         const data = response.files;
 
-        if (!cursor && data) {
+        if (!cursor) {
           cacheUtils.setCache(CACHE_CONFIG.managed.data, data);
           cacheUtils.clearManagedModification();
         }

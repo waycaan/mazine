@@ -44,9 +44,12 @@ if (process.env.NODE_ENV === 'development') {
   );
 }
 
+import { withAuth } from '@/lib/auth-middleware'
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import { cookies } from 'next/headers'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION || 'us-east-1',
@@ -58,15 +61,7 @@ const s3Client = new S3Client({
   forcePathStyle: true
 })
 
-export async function GET() {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ 
-      error: messages[getCurrentLang()].unauthorized 
-    }, { status: 401 })
-  }
-
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     const command = new ListObjectsV2Command({
       Bucket: process.env.S3_BUCKET_NAME || '',
@@ -93,4 +88,40 @@ export async function GET() {
       { status: 500 }
     )
   }
-} 
+})
+
+export const POST = withAuth(async (request: NextRequest) => {
+  const fileName = request.url.split('/').pop()
+  if (!fileName) {
+    return NextResponse.json(
+      { error: '文件名无效' },
+      { status: 400 }
+    )
+  }
+
+  try {
+    await s3Client.send(new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME || '',
+      Key: `likes/${fileName}`,
+      Body: ''
+    }))
+
+    return NextResponse.json({ 
+      success: true,
+      message: '收藏成功'
+    })
+  } catch (error) {
+    console.error('Failed to like file:', error)
+    return NextResponse.json(
+      { error: '收藏失败' },
+      { status: 500 }
+    )
+  }
+})
+
+export const DELETE = withAuth(async (request: NextRequest) => {
+  return NextResponse.json({ 
+    success: true,
+    message: '取消收藏成功'
+  })
+}) 

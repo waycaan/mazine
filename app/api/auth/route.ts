@@ -33,6 +33,8 @@ if (process.env.NODE_ENV === 'development') {
 
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import bcrypt from 'bcryptjs'
+import * as jose from 'jose'
 
 const messages = {
   en: {
@@ -41,7 +43,8 @@ const messages = {
     serverError: 'Server configuration error',
     wrongPassword: 'Incorrect password',
     logoutSuccess: 'Logged out',
-    logoutFailed: 'Logout failed'
+    logoutFailed: 'Logout failed',
+    invalidCredentials: 'Invalid credentials'
   },
   zh: {
     emptyRequest: '无效的请求',
@@ -49,7 +52,8 @@ const messages = {
     serverError: '服务器配置错误',
     wrongPassword: '密码错误',
     logoutSuccess: '已登出',
-    logoutFailed: '登出失败'
+    logoutFailed: '登出失败',
+    invalidCredentials: '无效的凭证'
   }
 }
 
@@ -57,71 +61,69 @@ const getCurrentLang = () => process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() ===
 
 export async function POST(request: Request) {
   try {
-    if (!request.body) {
-      console.error('Empty request body')
-      return NextResponse.json({ 
-        success: false,
-        error: messages[getCurrentLang()].emptyRequest 
-      }, { status: 400 })
-    }
-
     const body = await request.json()
-    
-    if (!body || typeof body.password !== 'string') {
-      console.error('Invalid password format')
-      return NextResponse.json({ 
-        success: false,
-        error: messages[getCurrentLang()].invalidPassword 
-      }, { status: 400 })
-    }
+    const { username, password } = body
 
-    const { password } = body
-
-    if (!process.env.ACCESS_PASSWORD) {
-      console.error('ACCESS_PASSWORD not configured')
+    if (!process.env.AUTH_USERNAME || !process.env.AUTH_PASSWORD_HASH) {
+      console.error('Missing auth configuration')
       return NextResponse.json({ 
         success: false,
         error: messages[getCurrentLang()].serverError 
       }, { status: 500 })
     }
 
-    if (password === process.env.ACCESS_PASSWORD) {
+    if (
+      process.env.AUTH_USERNAME === username && 
+      bcrypt.compareSync(password, process.env.AUTH_PASSWORD_HASH)
+    ) {
       console.log('Login successful')
       
-      cookies().set('auth', 'true', {
+      // 使用 jose 生成 JWT token
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || 'default-secret'
+      )
+      
+      const token = await new jose.SignJWT({ 
+        authenticated: true,
+        exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60)
+      })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .sign(secret)
+      
+      const response = NextResponse.json({ 
+        success: true,
+        redirect: '/home' 
+      })
+
+      response.cookies.set('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 60 * 60 * 72
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7
       })
-      
-      return NextResponse.json({ 
-        success: true,
-        redirect: '/' 
-      })
+
+      return response
     }
 
-    console.log('Invalid password attempt')
     return NextResponse.json({ 
       success: false,
-      error: messages[getCurrentLang()].wrongPassword 
+      error: messages[getCurrentLang()].invalidCredentials 
     }, { status: 401 })
 
   } catch (error) {
-    console.error('Auth error:', error)
+    console.error('Login error:', error)
     return NextResponse.json({ 
       success: false,
-      error: messages[getCurrentLang()].serverError,
-      details: process.env.NODE_ENV === 'development' 
-        ? error instanceof Error ? error.message : '未知错误'
-        : undefined
+      error: messages[getCurrentLang()].serverError 
     }, { status: 500 })
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    cookies().delete('auth')
+    cookies().delete('token')
     
     return NextResponse.json({ 
       success: true,

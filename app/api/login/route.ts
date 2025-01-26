@@ -1,49 +1,66 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { SignJWT } from 'jose'
+import bcrypt from 'bcryptjs'
+import { passwordSchema, usernameSchema } from '@/lib/password-validation'
+import { cookies } from 'next/headers'
 
-interface LoginRequest {
-  password: string
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const data = await request.json()
-    const receivedPassword = data.password
-    const expectedPassword = process.env.ACCESS_PASSWORD
-    
-    if (!expectedPassword) {
+    const { username, password } = await request.json()
+
+    try {
+      usernameSchema.parse(username)
+      passwordSchema.parse(password)
+    } catch (error) {
+      console.error('Validation error:', error)
       return NextResponse.json(
-        { success: false, message: '服务器配置错误' },
-        { status: 500 }
+        { error: 'Invalid credentials' },
+        { status: 400 }
       )
     }
-    
-    if (receivedPassword === expectedPassword) {
-      const response = NextResponse.json({ 
-        success: true,
-        message: '登录成功'
-      })
-      
-      response.cookies.set('auth', 'true', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 72
-      })
-      
-      return response
+
+    if (
+      username !== process.env.AUTH_USERNAME ||
+      !bcrypt.compareSync(password, process.env.AUTH_PASSWORD_HASH!)
+    ) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
     }
-    
+
+    const token = await new SignJWT({
+      authenticated: true,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('7d')
+      .sign(new TextEncoder().encode(process.env.JWT_SECRET))
+
+    const cookieStore = cookies()
+    cookieStore.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/'
+    })
+
     return NextResponse.json(
-      { success: false, message: '密码错误' },
-      { status: 401 }
+      { success: true },
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     )
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(
-      { success: false, message: '服务器错误' },
+      { error: String(error) },
       { status: 500 }
     )
   }
-}
+} 

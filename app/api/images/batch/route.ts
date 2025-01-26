@@ -22,9 +22,10 @@ const API_INFO = {
   license: 'Apache-2.0'
 } as const;
 
+import { withAuth } from '@/lib/auth-middleware'
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { cookies } from 'next/headers'
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION || 'us-east-1',
@@ -36,38 +37,47 @@ const s3Client = new S3Client({
   forcePathStyle: true
 })
 
-export async function DELETE(request: Request) {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
-
+export const DELETE = withAuth(async (request: NextRequest) => {
   try {
-    const { fileNames } = await request.json()
-
-    await Promise.all(
-      fileNames.map(async (fileName: string) => {
-        await s3Client.send(new DeleteObjectCommand({
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: fileName
-        }))
-
-        try {
-          await s3Client.send(new DeleteObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: `likes/${fileName}`
-          }))
-        } catch (error) {
-        }
+    const body = await request.json()
+    console.log('Received delete request body:', body)
+    
+    if (!body || !body.fileNames || !Array.isArray(body.fileNames)) {
+      console.error('Invalid request body:', {
+        body,
+        hasFileNames: !!body?.fileNames,
+        isArray: Array.isArray(body?.fileNames)
       })
-    )
+      return NextResponse.json(
+        { error: '无效的请求数据' },
+        { status: 400 }
+      )
+    }
+    
+    const { fileNames } = body
+    console.log('Files to delete:', fileNames)
+    
+    await Promise.all(fileNames.map(async (fileName: string) => {
+      await s3Client.send(new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME || '',
+        Key: fileName
+      }))
+      
+      await s3Client.send(new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME || '',
+        Key: `thumbs/${fileName}`
+      }))
+    }))
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      message: '删除成功'
+    })
   } catch (error) {
+    console.error('Batch delete failed:', error)
     return NextResponse.json(
-      { success: false, error: '批量删除失败' },
+      { error: '批量删除失败' },
       { status: 500 }
     )
   }
-} 
+}) 

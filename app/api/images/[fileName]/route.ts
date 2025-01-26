@@ -16,7 +16,8 @@
 
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
-import { cookies } from 'next/headers'
+import { withAuth } from '@/lib/auth-middleware'
+import type { NextRequest } from 'next/server'
 
 const API_INFO = {
   id: 'mazine-api-image-operations-v1.0.0',
@@ -106,16 +107,7 @@ const messages = {
 
 const getMessage = (key: MessageKey): string => messages[getCurrentLang()][key];
 
-export async function POST(
-  request: Request,
-  { params }: { params: { fileName: string } }
-) {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
-
+export const POST = withAuth(async (request: NextRequest, { params }: { params: { fileName: string } }) => {
   try {
     if (!await checkS3Connection()) {
       return NextResponse.json(
@@ -239,18 +231,9 @@ export async function POST(
       { status: 500 }
     )
   }
-}
+})
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { fileName: string } }
-) {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
-
+export const DELETE = withAuth(async (request: NextRequest, { params }: { params: { fileName: string } }) => {
   try {
     if (!await checkS3Connection()) {
       return NextResponse.json(
@@ -337,4 +320,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}) 

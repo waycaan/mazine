@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const auth = request.cookies.get('auth')
-  const isAuthenticated = !!auth
+  const token = request.cookies.get('token')?.value
   
   const protectedPaths = ['/home', '/manage', '/likes']
 
   if (pathname === '/') {
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  let isAuthenticated = false
+  if (token) {
+    try {
+      await jwtVerify(
+        token,
+        new TextEncoder().encode(process.env.JWT_SECRET)
+      )
+      isAuthenticated = true
+    } catch {
+      isAuthenticated = false
+    }
   }
 
   if (isAuthenticated && pathname === '/login') {

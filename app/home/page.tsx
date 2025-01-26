@@ -179,6 +179,22 @@ export default function HomePage() {
 
   const [maxImageSize, setMaxImageSize] = useState<number | null>(null);
 
+  useEffect(() => {
+    const initializeCache = async () => {
+      try {
+        // 直接获取数据，不需要检查状态
+        await Promise.all([
+          api.images.get().catch(console.error),
+          api.likes.get().catch(console.error)
+        ])
+      } catch (error) {
+        console.error('初始化缓存失败:', error)
+      }
+    }
+
+    void initializeCache()
+  }, [])
+
   const handleUpload = async (files: File[] | FileList) => {
     if (files.length === 0) return;
 
@@ -369,8 +385,11 @@ export default function HomePage() {
           const newFiles = data.files.filter((file: any) => !file.fileName.startsWith('thumbs/'))
           setCurrentImages(prev => [...newFiles, ...prev])
           
+          // 标记缓存需要更新
           api.cache.markManagedModification()
-          api.images.get().catch(console.error)
+          
+          // 直接从服务器获取最新数据
+          void api.images.get().catch(console.error)
           
           setUploadStatus((prev: UploadStatus) => ({
             ...prev,
@@ -381,7 +400,7 @@ export default function HomePage() {
           setUploadErrors((prev: UploadError[]) => [...prev, {
             fileName: file.name,
             error: data.error || '上传失败'
-          }])
+          }]);
         }
       } catch (error) {
         console.error('上传失败:', error)
@@ -476,7 +495,6 @@ export default function HomePage() {
       }
 
       api.cache.markLikedModification();
-      api.likes.get();
     } catch (error) {
       setCurrentImages(prev => prev.map(img => 
         img.fileName === fileName 

@@ -94,7 +94,6 @@ function ImageCardWithLoad({ image, isSelectable, isSelected, onSelect, onPrevie
   )
 }
 
-// Code watermark
 console.log(
   "%c Powered by Mazine - Copyright (C) 2024 waycaan ",
   "background: #3B82F6; color: white; padding: 5px; border-radius: 3px;"

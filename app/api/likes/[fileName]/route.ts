@@ -25,6 +25,8 @@ const API_INFO = {
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { withAuth } from '@/lib/auth-middleware'
+import type { NextRequest } from 'next/server'
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION || 'us-east-1',
@@ -36,16 +38,7 @@ const s3Client = new S3Client({
   forcePathStyle: true
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: { fileName: string } }
-) {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
-
+export const POST = withAuth(async (request: NextRequest, { params }: { params: { fileName: string } }) => {
   try {
     const fileName = decodeURIComponent(params.fileName)
     console.log('收藏请求:', { 
@@ -72,18 +65,9 @@ export async function POST(
       { status: 500 }
     )
   }
-}
+})
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { fileName: string } }
-) {
-  const cookieStore = cookies()
-  const auth = cookieStore.get('auth')
-  if (!auth) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
-
+export const DELETE = withAuth(async (request: NextRequest, { params }: { params: { fileName: string } }) => {
   try {
     const fileName = decodeURIComponent(params.fileName)
     
@@ -108,4 +92,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}) 
