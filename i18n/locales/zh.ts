@@ -88,6 +88,7 @@ export default {
     title: "Mazine",
     subtitle: "惊喜在每一丝灵感中相遇",
     password: "请输入访问密码",
+    username: "输入你的用户名",
     button: {
       login: "登录",
       loading: "登录中..."
