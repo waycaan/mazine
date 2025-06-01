@@ -133,26 +133,14 @@ export default function ManagePage() {
     const isPageRefresh = (performance as any).navigation?.type === 1 ||
                          (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload';
     if (isPageRefresh) {
-      console.log('🔄 [Manage] 检测到页面刷新，清空所有本地状态');
+      console.log('🔄 [Manage] 检测到页面刷新，清空UI状态');
       setSearchTerm('');
       setPreviewImage(null);
       setShowLiked(false);
       deselectAll();
-      console.log('🚀 [Manage] 页面刷新清理完成，等待新数据加载');
+      console.log('🚀 [Manage] 页面刷新清理完成，JSON获取由useOptimizedImageIndex处理');
     }
-  }, []);
-  useEffect(() => {
-    const isPageRefresh = (performance as any).navigation?.type === 1 ||
-                         (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload';
-    if (isPageRefresh) {
-      setSearchTerm('');
-      setPreviewImage(null);
-      setShowLiked(false);
-      deselectAll();
-      frontendJsonManager.clearCurrentJson();
-      refreshIndex();
-    }
-  }, [refreshIndex, deselectAll]);
+  }, [deselectAll]);
   useEffect(() => {
     if (index) {
       frontendJsonManager.setCurrentJson(index);
