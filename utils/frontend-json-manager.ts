@@ -147,6 +147,7 @@ class FrontendJsonManager {
       if (key && (
         key.includes('_status') ||
         key.includes('image_index') ||
+        key.includes('index_etag') ||
         key.includes('managed_images') ||
         key.includes('liked_images') ||
         key.includes('recent_modification') ||

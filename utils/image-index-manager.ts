@@ -28,8 +28,6 @@ export class ImageIndexManager {
   private s3Client: S3Client;
   private bucketName: string;
   private indexKey = 'index.json';
-  private indexCache: { data: ImageIndex; timestamp: number } | null = null;
-  private readonly CACHE_TTL = 2 * 60 * 1000; 
   constructor() {
     this.s3Client = new S3Client({
       region: process.env.S3_REGION!,
@@ -43,9 +41,6 @@ export class ImageIndexManager {
     this.bucketName = process.env.S3_BUCKET_NAME!;
   }
   async getIndex(): Promise<ImageIndex> {
-    if (this.indexCache && Date.now() - this.indexCache.timestamp < this.CACHE_TTL) {
-      return this.indexCache.data;
-    }
     try {
       const response = await this.s3Client.send(new GetObjectCommand({
         Bucket: this.bucketName,
@@ -54,7 +49,6 @@ export class ImageIndexManager {
       const content = await response.Body?.transformToString();
       if (content) {
         const index = JSON.parse(content) as ImageIndex;
-        this.indexCache = { data: index, timestamp: Date.now() };
         return index;
       }
     } catch (error: any) {
@@ -123,9 +117,7 @@ export class ImageIndexManager {
       console.error(`🚨 JSON写入验证最终失败，已尝试 ${maxVerifyAttempts} 次`);
       throw new Error('JSON索引写入验证失败，数据可能不一致');
     }
-    this.indexCache = null;
-    this.indexCache = { data: index, timestamp: Date.now() };
-    console.log(`✅ JSON索引缓存已更新，新数据已生效`);
+    console.log(`✅ JSON索引保存完成`);
   }
   async addImages(newImages: ImageIndexItem[]): Promise<ImageIndex> {
     console.log(`📝 添加 ${newImages.length} 张图片到索引`);
