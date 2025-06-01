@@ -57,9 +57,9 @@ export function generateDisplayUrl(fileName: string): string {
   }
   return `${baseUrl.replace(/\/$/, '')}/${fileName}`;
 }
-export function generateMarkdownLink(fileName: string, originalName: string): string {
+export function generateMarkdownLink(fileName: string): string {
   const url = generateImageUrl(fileName);
-  return `![${originalName}](${url})`;
+  return `![${fileName}](${url})`;
 }
 export function generateBBCodeLink(fileName: string): string {
   const url = generateImageUrl(fileName);
@@ -70,7 +70,7 @@ export function processImageItem(item: ImageIndexItem): ProcessedImageItem {
     ...item,
     url: generateImageUrl(item.fileName),
     previewUrl: generatePreviewUrl(item.fileName),
-    markdown: generateMarkdownLink(item.fileName, item.originalName),
+    markdown: generateMarkdownLink(item.fileName),
     bbcode: generateBBCodeLink(item.fileName)
   };
 }
@@ -109,8 +109,7 @@ export function searchImages(
     return processImageItems(items);
   }
   const lowerQuery = query.toLowerCase();
-  const filteredItems = items.filter(item => 
-    item.originalName.toLowerCase().includes(lowerQuery) ||
+  const filteredItems = items.filter(item =>
     item.fileName.toLowerCase().includes(lowerQuery)
   );
   return processImageItems(filteredItems);

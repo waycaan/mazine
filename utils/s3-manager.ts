@@ -25,7 +25,6 @@
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadObjectCommand } from '@aws-sdk/client-s3';
 export interface ImageMetadata {
   id: string;
-  originalName: string;
   fileName: string;
   uploadTime: string;
   size: number;
@@ -121,12 +120,12 @@ export class S3Manager {
   }
   async uploadImage(
     file: Buffer,
-    originalName: string,
+    originalFileName: string,
     contentType: string,
     thumbnailBuffer?: Buffer
   ): Promise<ImageMetadata> {
     const fileId = this.generateFileId();
-    const ext = originalName.split('.').pop();
+    const ext = originalFileName.split('.').pop();
     const fileName = `${fileId}.${ext}`;
     const imageKey = `images/${fileName}`;
     const uploadCommand = new PutObjectCommand({
@@ -151,7 +150,6 @@ export class S3Manager {
     }
     const metadata: ImageMetadata = {
       id: fileId,
-      originalName,
       fileName,
       uploadTime: new Date().toISOString(),
       size: file.length,
@@ -277,7 +275,7 @@ export class S3Manager {
     const { images } = await this.getAllImages(1000);
     return images.filter(img => {
       const matchesQuery = !query ||
-        img.originalName.toLowerCase().includes(query.toLowerCase()) ||
+        img.fileName.toLowerCase().includes(query.toLowerCase()) ||
         img.metadata.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()));
       const matchesTags = !tags || tags.length === 0 ||
         tags.every(tag => img.metadata.tags.includes(tag));
