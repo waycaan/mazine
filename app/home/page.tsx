@@ -56,7 +56,7 @@ import { useI18n } from '@/i18n/context'
 import { AuthClient } from '@/utils/auth-client'
 import { frontendJsonManager } from '@/utils/frontend-json-manager'
 import { useOptimizedImageIndex } from '@/hooks/useOptimizedImageIndex'
-import { indexSyncNotifier } from '@/utils/index-sync-notifier'
+
 import { LogoutService } from '@/utils/logout-service'
 interface UploadedFile {
   fileName: string;
@@ -491,11 +491,8 @@ export default function HomePage() {
             setCurrentImages(prev => [...allDisplayFiles, ...prev]);
           }
           await refreshIndex();
-          const fileNames = allUploadedItems.map(item => item.fileName);
-          indexSyncNotifier.notifyBatchUpload(fileNames, result.newJson.totalCount);
-          console.log(`🚀 [Home] 已发送批量上传通知:`);
+          console.log(`🚀 [Home] 批量上传完成:`);
           console.log(`   - 文件数量: ${allUploadedItems.length}`);
-          console.log(`   - 文件列表: [${fileNames.join(', ')}]`);
           console.log(`   - 新的总数: ${result.newJson.totalCount}`);
         } else {
           console.error('🚀 [Home] 批量JSON更新失败:', result.error);

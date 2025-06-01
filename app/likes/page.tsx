@@ -160,9 +160,7 @@ export default function LikesPage() {
       const updatedJson = frontendJsonManager.calculateBatchLikeToggle(selectedArray, false);
       const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'batch-unlike');
       if (result.success) {
-        setTimeout(async () => {
-          await updateMetadataSilently();
-        }, 100);
+        await refreshIndex();
       } else {
         alert(`批量取消收藏失败: ${result.error}`);
         await refreshIndex();
@@ -175,15 +173,7 @@ export default function LikesPage() {
   };
   const openPreview = (url: string) => setPreviewImage(url)
   const closePreview = () => setPreviewImage(null)
-  useEffect(() => {
-    const unsubscribe = addIndexUpdateListener((event) => {
-      if (event.type === 'upload' || event.type === 'delete' ||
-          event.type === 'like' || event.type === 'unlike') {
-        refreshIndex()
-      }
-    })
-    return unsubscribe
-  }, []) 
+
   const groupImagesByDate = (images: ProcessedImageItem[]) => {
     const groups: { [date: string]: ProcessedImageItem[] } = {}
     images.forEach(image => {

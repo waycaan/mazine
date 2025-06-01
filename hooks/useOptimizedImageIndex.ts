@@ -26,7 +26,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ImageIndex, ImageIndexResponse } from '@/types/image-index';
 interface UseOptimizedImageIndexOptions {
   enableCache?: boolean;
-  cacheTimeout?: number; 
 }
 interface UseOptimizedImageIndexReturn {
   index: ImageIndex | null;
@@ -45,11 +44,9 @@ interface IndexOperation {
   data?: any;
 }
 const CACHE_KEY = 'optimized_image_index';
-const CACHE_TIMESTAMP_KEY = 'optimized_index_timestamp';
 const CACHE_ETAG_KEY = 'optimized_index_etag';
 export function useOptimizedImageIndex({
-  enableCache = true,
-  cacheTimeout = 5 * 60 * 1000 
+  enableCache = true
 }: UseOptimizedImageIndexOptions = {}): UseOptimizedImageIndexReturn {
   const [index, setIndex] = useState<ImageIndex | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,28 +58,22 @@ export function useOptimizedImageIndex({
     if (!enableCache || typeof window === 'undefined') return null;
     try {
       const cached = localStorage.getItem(CACHE_KEY);
-      const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
       const etag = localStorage.getItem(CACHE_ETAG_KEY);
-      if (cached && timestamp && etag) {
-        const cacheTime = parseInt(timestamp);
-        const now = Date.now();
-        if (now - cacheTime < cacheTimeout) {
-          return {
-            index: JSON.parse(cached),
-            etag
-          };
-        }
+      if (cached && etag) {
+        return {
+          index: JSON.parse(cached),
+          etag
+        };
       }
     } catch (error) {
       console.warn('读取缓存失败:', error);
     }
     return null;
-  }, [enableCache, cacheTimeout]);
+  }, [enableCache]);
   const setCachedIndex = useCallback((data: ImageIndex, etag: string) => {
     if (!enableCache || typeof window === 'undefined') return;
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-      localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
       localStorage.setItem(CACHE_ETAG_KEY, etag);
     } catch (error) {
       console.warn('保存缓存失败:', error);
@@ -92,7 +83,6 @@ export function useOptimizedImageIndex({
     if (typeof window === 'undefined') return;
     try {
       localStorage.removeItem(CACHE_KEY);
-      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       localStorage.removeItem(CACHE_ETAG_KEY);
       lastETagRef.current = '';
     } catch (error) {
@@ -165,20 +155,7 @@ export function useOptimizedImageIndex({
     } finally {
       setIsLoading(false);
     }
-  }, [getCachedIndex, setCachedIndex]); 
-  const validateCache = useCallback(async (etag: string) => {
-    try {
-      const response = await fetch('/api/images/index', {
-        headers: {
-          'If-None-Match': etag
-        }
-      });
-      if (response.status !== 304) {
-        await fetchIndex(false);
-      }
-    } catch (error) {
-    }
-  }, [fetchIndex]);
+  }, [getCachedIndex, setCachedIndex]);
   const updateIndexOptimistically = useCallback((operation: IndexOperation | IndexOperation[]) => {
     if (!index) return;
     const operations = Array.isArray(operation) ? operation : [operation];
