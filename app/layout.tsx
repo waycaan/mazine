@@ -49,7 +49,7 @@ export default function RootLayout({
     <html lang={process.env.NEXT_PUBLIC_LANGUAGE?.toLowerCase() === 'en' ? 'en' : 'zh'}>
       <head>
         <link
-          href="https:
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
         <link rel="icon" href="/favicon.ico" type="image/x-icon"/>

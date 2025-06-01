@@ -60,7 +60,6 @@ import { indexSyncNotifier } from '@/utils/index-sync-notifier'
 import { LogoutService } from '@/utils/logout-service'
 interface UploadedFile {
   fileName: string;
-  originalName: string;
   url: string;
   markdown: string;
   bbcode: string;
@@ -179,6 +178,7 @@ export default function HomePage() {
   });
   const [uploadStartTime, setUploadStartTime] = useState<number>(0);
   const [showOperationLogs, setShowOperationLogs] = useState<boolean>(false);
+  const [showFooter, setShowFooter] = useState(false);
   useEffect(() => {
     const isPageRefresh = (performance as any).navigation?.type === 1 ||
                          (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload';
@@ -559,7 +559,6 @@ export default function HomePage() {
       })
   }
   const handleLogout = () => LogoutService.logout()
-  const [showFooter, setShowFooter] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
       const mainElement = document.querySelector('main');
@@ -617,7 +616,11 @@ export default function HomePage() {
               ref={fileInputRef}
               onChange={e => e.target.files && handleUpload(e.target.files)}
               multiple
-              accept="image}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
+            {uploadStatus.stage !== 'idle' ? (
+              <div className={styles.uploadStatus}>
                 <div className={styles.statusLine}>
                   {uploadStatus.stage !== 'complete' && (
                     <span className={styles.loadingSpinner} />
@@ -705,10 +708,10 @@ export default function HomePage() {
                   className={styles.imagePreview}
                   onClick={() => setPreviewImage(image.url)}
                 >
-                  <img src={image.url} alt={image.originalName} />
+                  <img src={image.url} alt={image.fileName} />
                 </div>
                 <div className={styles.imageInfo}>
-                  <div className={styles.fileName}>{image.originalName}</div>
+                  <div className={styles.fileName}>{image.fileName}</div>
                   <div className={styles.detailsGroup}>
                     <div className={styles.detailItem}>
                       <span>{formatFileSize(image.size)}</span>

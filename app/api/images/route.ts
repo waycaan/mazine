@@ -38,7 +38,7 @@ function getPublicUrl(fileName: string): string {
   const bucket = process.env.S3_BUCKET_NAME || ''
   const encodedFileName = encodeURIComponent(fileName)
   if (endpoint.includes('amazonaws.com')) {
-    return `https:
+    return `https://${bucket}.s3.amazonaws.com/${encodedFileName}`
   }
   return `${endpoint}/${bucket}/${encodedFileName}`
 }
@@ -104,7 +104,6 @@ export async function GET(request: NextRequest) {
         Key: fileName
       }))
       return {
-        originalName: fileName,
         fileName,
         url,
         previewUrl,

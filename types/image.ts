@@ -22,4 +22,48 @@
  * SOFTWARE.
  */
 
-const TYPE_INFO = {  id: 'mazine-types-image-v1.0.0',  name: 'ImageTypes',  author: 'waycaan',  version: '1.0.0',  license: 'Apache-2.0'} as const;export interface ImageDimensions {  width: number  height: number}export interface ImageFile {  originalName: string  fileName: string  url: string  previewUrl?: string  markdown: string  bbcode: string  size: number  uploadTime: string  dimensions: {    width: number    height: number  }}export interface ManagedImage extends ImageFile {  isLiked: boolean}export interface LikedImage extends ImageFile {  isLiked: boolean  likedAt?: string}export interface ImageUploadResponse {  success: boolean  error?: string  files?: ImageFile[]}export interface ImageListResponse {  success: boolean  data?: ImageFile[]  error?: string}export interface ImagesResponse {  images: ImageFile[]  likedFiles: string[] }
+const TYPE_INFO = {
+  id: 'mazine-types-image-v1.0.0',
+  name: 'ImageTypes',
+  author: 'waycaan',
+  version: '1.0.0',
+  license: 'Apache-2.0'
+} as const;
+export interface ImageDimensions {
+  width: number
+  height: number
+}
+export interface ImageFile {
+  fileName: string
+  url: string
+  previewUrl?: string
+  markdown: string
+  bbcode: string
+  size: number
+  uploadTime: string
+  dimensions: {
+    width: number
+    height: number
+  }
+}
+export interface ManagedImage extends ImageFile {
+  isLiked: boolean
+}
+export interface LikedImage extends ImageFile {
+  isLiked: boolean
+  likedAt?: string
+}
+export interface ImageUploadResponse {
+  success: boolean
+  error?: string
+  files?: ImageFile[]
+}
+export interface ImageListResponse {
+  success: boolean
+  data?: ImageFile[]
+  error?: string
+}
+export interface ImagesResponse {
+  images: ImageFile[]
+  likedFiles: string[] 
+}
