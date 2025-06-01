@@ -42,7 +42,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useSelection } from '@/hooks/useSelection'
 import { useOptimizedImageIndex } from '@/hooks/useOptimizedImageIndex'
 import { frontendJsonManager } from '@/utils/frontend-json-manager'
-import { addIndexUpdateListener } from '@/utils/index-sync-notifier'
+
 import type { ProcessedImageItem } from '@/types/image-index'
 import { useI18n } from '@/i18n/context'
 import { LogoutService } from '@/utils/logout-service'
@@ -156,20 +156,33 @@ export default function LikesPage() {
       data: { isLiked: false }
     }));
     updateIndexOptimistically(unlikeOperations);
+    deselectAll();
     try {
       const updatedJson = frontendJsonManager.calculateBatchLikeToggle(selectedArray, false);
       const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'batch-unlike');
       if (result.success) {
-        await refreshIndex();
+        console.log(`📋 [Likes] 取消收藏成功，使用返回的最新JSON`);
+        console.log(`   - 新的收藏总数: ${result.newJson.likedCount}`);
       } else {
         alert(`批量取消收藏失败: ${result.error}`);
-        await refreshIndex();
+        selectedArray.forEach(fileName => {
+          updateIndexOptimistically({
+            type: 'toggleLike',
+            fileName,
+            data: { isLiked: true }
+          });
+        });
       }
     } catch (error: any) {
       alert(`批量取消收藏失败: ${error.message}`);
-      await refreshIndex();
+      selectedArray.forEach(fileName => {
+        updateIndexOptimistically({
+          type: 'toggleLike',
+          fileName,
+          data: { isLiked: true }
+        });
+      });
     }
-    deselectAll();
   };
   const openPreview = (url: string) => setPreviewImage(url)
   const closePreview = () => setPreviewImage(null)

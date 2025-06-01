@@ -490,10 +490,10 @@ export default function HomePage() {
           if (allDisplayFiles.length > 0) {
             setCurrentImages(prev => [...allDisplayFiles, ...prev]);
           }
-          await refreshIndex();
           console.log(`🚀 [Home] 批量上传完成:`);
           console.log(`   - 文件数量: ${allUploadedItems.length}`);
           console.log(`   - 新的总数: ${result.newJson.totalCount}`);
+          console.log(`📋 [Home] 使用返回的最新JSON，无需重新获取`);
         } else {
           console.error('🚀 [Home] 批量JSON更新失败:', result.error);
           alert(`批量JSON更新失败: ${result.error}`);

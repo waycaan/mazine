@@ -233,7 +233,8 @@ export default function ManagePage() {
       const updatedJson = frontendJsonManager.calculateBatchLikeToggle(selectedArray, true);
       const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'batch-like');
       if (result.success) {
-        await refreshIndex();
+        console.log(`📋 [Manage] 收藏成功，使用返回的最新JSON`);
+        console.log(`   - 新的收藏总数: ${result.newJson.likedCount}`);
       } else {
         alert(`批量收藏失败: ${result.error}`);
         selectedArray.forEach(fileName => {
@@ -274,6 +275,9 @@ export default function ManagePage() {
         if (!deleteResponse.success) {
           alert(`S3文件删除失败: ${deleteResponse.error}`);
           await refreshIndex();
+        } else {
+          console.log(`📋 [Manage] 删除成功，使用返回的最新JSON`);
+          console.log(`   - 新的总数: ${result.newJson.totalCount}`);
         }
       } else {
         alert(`JSON删除失败: ${result.error}`);
