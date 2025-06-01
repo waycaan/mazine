@@ -8,10 +8,22 @@ Mazine is a **Serverless modern image hosting application** built on **Next.js 1
 - **Code Hosting**: The project code is hosted on **GitHub** and deployed to **Vercel**.
 - **Environment Variable Management**: Passwords and related environment variables must be manually added to Vercel to ensure the security of sensitive information.
 
-## Updates
+# 🚀🚀Major Update🚀🚀
 
-- Enhanced login verification by using encrypted password hashes and storing random JWTs in cookies for access authentication.
-- Improved cache loading strategy to maximize response speed.
+## May 31
+
+**🚀In short, this is essentially a brand-new project built upon the foundation of the previous UI — with a restructured codebase, improved authentication, and refined UI design.**
+
+- **Authentication Upgrade**: The cumbersome JWT-based method has been deprecated in favor of a more efficient and architecture-aligned authentication approach, improving both security and response speed.
+
+- **Half-Screen UI Optimization**: The interface interactions have been refined to better match user habits, offering a smoother and more intuitive experience.
+
+- **Complete Overhaul of Data Management**: A brand-new architecture significantly reduces backend (Vercel Function) calls, resulting in response speeds several times faster. Even under Vercel deployment, the performance now closely matches local execution.
+
+- **Optimized Loading and Caching Logic**: Loading mechanisms have been restructured and caching strategies enhanced to better support the new data management logic, boosting overall system performance and stability.
+
+- **Enhanced Statistics and Notifications**: More detailed statistics and notifications regarding image hosting usage have been added, giving users better insight into uploads and management. The developer console (F12) now also provides concise feedback for quicker diagnostics.
+
 
   
 ### CDN Security and Recommended Configuration
