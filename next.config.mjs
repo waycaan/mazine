@@ -4,16 +4,12 @@ const nextConfig = {
 
   images: {
   unoptimized: true,
-  domains: process.env.NEXT_PUBLIC_CDN ? 
-    [new URL(process.env.NEXT_PUBLIC_CDN).hostname] : 
+  domains: process.env.NEXT_PUBLIC_CDN ?
+    [new URL(process.env.NEXT_PUBLIC_CDN).hostname] :
     [],
   },
-  
-  experimental: {
-    serverComponentsExternalPackages: ['sharp'],
-  },
 
-  swcMinify: true,
+  serverExternalPackages: ['sharp'],
   poweredByHeader: false,
   compress: true,
 

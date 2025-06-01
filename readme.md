@@ -133,9 +133,9 @@ The source code, documentation, and all related resources of this project must n
 
 ------
 
-## Apache License 2.0
+## MIT License
 
-This project is licensed under the **Apache License 2.0**. You are free to use, modify, and distribute the project as long as you retain the copyright notice of the original author.
+This project is licensed under the **MIT License**. You are free to use, modify, and distribute the project as long as you retain the copyright notice of the original author.
 
 ------
 

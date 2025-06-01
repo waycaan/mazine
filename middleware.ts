@@ -1,43 +1,39 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose'
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('token')?.value
-  
-  const protectedPaths = ['/home', '/manage', '/likes']
 
+  // 🚨 获取Iron Session认证cookie
+  const ironSessionCookie = request.cookies.get('mazine-auth')?.value
+  const isAuthenticated = !!ironSessionCookie
+
+  // 根路径重定向到登录页
   if (pathname === '/') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  let isAuthenticated = false
-  if (token) {
-    try {
-      await jwtVerify(
-        token,
-        new TextEncoder().encode(process.env.JWT_SECRET)
-      )
-      isAuthenticated = true
-    } catch {
-      isAuthenticated = false
-    }
-  }
+  // 受保护的路径
+  const protectedPaths = ['/home', '/manage', '/likes']
+  const isProtectedPath = protectedPaths.includes(pathname)
 
+  // 已登录用户访问登录页，重定向到首页
   if (isAuthenticated && pathname === '/login') {
     return NextResponse.redirect(new URL('/home', request.url))
   }
 
-  if (!isAuthenticated && protectedPaths.includes(pathname)) {
-    const url = new URL('/login', request.url)
-    url.searchParams.set('from', pathname)
-    return NextResponse.redirect(url)
+  // 未登录用户访问受保护页面，重定向到登录页
+  if (!isAuthenticated && isProtectedPath) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('from', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/', '/login', '/home', '/manage', '/likes']
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ]
 }

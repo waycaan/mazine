@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background-color: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  --day-component-bg: rgba(255, 255, 255, 0.5);
+  --night-component-bg: rgba(0, 0, 0, 0.5);
+  --day-text: #000;
+  --night-text: #fff;
+  --day-highlight: #3B82F6;
+  --night-highlight: #eab308;
+}
+
+* {
+  caret-color: transparent;
+}
+
+input[type="text"], 
+textarea {
+  caret-color: auto;
+}
