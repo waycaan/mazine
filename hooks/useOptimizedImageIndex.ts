@@ -237,18 +237,15 @@ export function useOptimizedImageIndex({
   useEffect(() => {
     const isPageRefresh = (performance as any).navigation?.type === 1 ||
                          (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload';
+
     if (isPageRefresh) {
-      invalidateCache();
-      setIndex(null);
-      setError(null);
-      setLastUpdated(null);
-      lastETagRef.current = '';
-      setTimeout(() => {
-        fetchIndex(false, true); 
-      }, 100);
+      // 页面刷新：跳过localStorage缓存，直接发送ETag请求
+      fetchIndex(false, true); // forceRefresh = true，跳过缓存检查
     } else {
+      // 页面跳转：正常流程，优先使用缓存
       fetchIndex(false);
     }
+
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
