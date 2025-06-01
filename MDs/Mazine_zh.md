@@ -7,8 +7,21 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 - **代码托管**：项目代码托管在 **GitHub**，并部署到 **Vercel** 上运行。  
 - **环境变量管理**：密码和相关环境变量需手动填写到 Vercel 中，确保敏感信息安全。  
 
-## 更新
+# 重大更新
 
+## 5月31日
+
+- 验证机制升级：已弃用繁琐的 JWT 方案，改为更高效且更契合当前架构的验证方式，提升了安全性与响应速度。
+
+- 半屏 UI 优化：界面交互更贴合用户使用习惯，操作体验更加顺畅自然。
+
+- 数据管理全面重构：采用全新架构，大幅减少对后端（Vercel Function）的调用次数，响应速度提升数倍。即使在 Vercel 部署环境下，体验也几乎媲美本地运行。
+
+- 加载与缓存逻辑优化：重构加载机制，增强数据缓存策略，更好地适配新的数据管理方案，进一步提升系统整体性能与稳定性。
+  
+- 统计与通知增强：新增更多图床使用统计与通知，帮助用户更全面地掌握上传与管理情况。控制台（F12）也将提供简洁反馈，便于快速诊断和了解当前状态。
+  
+### 5个月前
 - 已加强登录验证，采用加密密码hash，以及随机JWT保存到cookies来访问验证。
 - 改进缓存加载策略，尽量提高反馈速度。
   
@@ -54,24 +67,7 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 ---
 ### 1.Fork 这个仓库
 ---
-### 2.生成登录必要的环境变量
 
-#### a.生成 环境变量  `JWT_SECRET`  JWT 密钥：
-
-- 访问 https://generate-secret.vercel.app/32
-
-- 这个网站会自动生成一个安全的随机密钥。
-
-#### b. 生成环境变量  `AUTH_PASSWORD_HASH`  密码哈希：
-
-访问 https://bcrypt-generator.com/
-
-- 输入你想要的密码
-
-- 选择 10 轮加密（rounds）
-
-- 点击生成，得到哈希值
----
 ### 2.使用 R2
 
 本项目开发和测试均基于CloudFlare R2作为存储桶，其他S3存储桶尚未测试
@@ -88,8 +84,7 @@ S3_ENDPOINT=http:bucket-endpoint
 NEXT_PUBLIC_CDN=xxx.r2.dev or 自定义域名
 NEXT_PUBLIC_LANGUAGE=EN
 AUTH_USERNAME=
-AUTH_PASSWORD_HASH=
-JWT_SECRET=
+AUTH_PASSWORD=
 ```
 ---
 
@@ -105,7 +100,7 @@ JWT_SECRET=
 
 ![vercel_1.png](/MDs/vercel_1.png)
 
-#### - 点击deploy 并等待1分钟！
+#### - 点击deploy 并等待2分钟！
 
 #### - 搞掂!!
 
