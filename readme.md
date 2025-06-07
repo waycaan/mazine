@@ -8,9 +8,7 @@ Mazine is a **Serverless modern image hosting application** built on **Next.js 1
 - **Code Hosting**: The project code is hosted on **GitHub** and deployed to **Vercel**.
 - **Environment Variable Management**: Passwords and related environment variables must be manually added to Vercel to ensure the security of sensitive information.
 
-# 🚀🚀Major Update🚀🚀
-
-## [✈️see the updates ](https://www.bilibili.com/video/BV11cTLzpEmi/?share_source=copy_web&vd_source=374d45a7e4cafee012b1f00c94c3d023)
+# 🚀🚀Major Update🚀🚀----[✈️see the updates ](https://www.bilibili.com/video/BV11cTLzpEmi/?share_source=copy_web&vd_source=374d45a7e4cafee012b1f00c94c3d023)
 
 ## May 31
 
