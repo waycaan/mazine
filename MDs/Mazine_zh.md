@@ -7,7 +7,7 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 - **代码托管**：项目代码托管在 **GitHub**，并部署到 **Vercel** 上运行。  
 - **环境变量管理**：密码和相关环境变量需手动填写到 Vercel 中，确保敏感信息安全。  
 
-# 重大更新
+# 重大更新-----[✈️see the updates ](https://www.bilibili.com/video/BV11cTLzpEmi/?share_source=copy_web&vd_source=374d45a7e4cafee012b1f00c94c3d023)
 
 ## 5月31日（废话少说，这是一个在原有 UI 基础上重新构建的全新项目，重构了代码结构，优化了验证机制，并改进了界面设计。）
 
