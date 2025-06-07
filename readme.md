@@ -10,6 +10,8 @@ Mazine is a **Serverless modern image hosting application** built on **Next.js 1
 
 # 🚀🚀Major Update🚀🚀
 
+## [✈️see the updates ](https://www.bilibili.com/video/BV11cTLzpEmi/?share_source=copy_web&vd_source=374d45a7e4cafee012b1f00c94c3d023)
+
 ## May 31
 
 **🚀In short, this is essentially a brand-new project built upon the foundation of the previous UI — with a restructured codebase, improved authentication, and refined UI design.**
