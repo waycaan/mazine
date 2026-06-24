@@ -34,6 +34,8 @@ import { ViewMode } from '@/types/view'
 import { useI18n } from '@/i18n/context'
 interface SelectionBarProps {
   selectedCount: number
+  totalImages?: number
+  totalLikes?: number
   onSelectAll: () => void
   onDeselectAll: () => void
   onInvertSelection: () => void
@@ -56,6 +58,8 @@ export function SelectionBar({
   onDeleteSelected,
   onLikeSelected,
   onUnlikeSelected,
+  totalImages = 0,
+  totalLikes = 0,
   viewMode,
   onViewModeChange,
   showDeleteButton = true,
@@ -139,6 +143,10 @@ export function SelectionBar({
           )}
         </div>
       )}
+      <div className={styles.statsBadges}>
+        <span className={styles.statsBadge}>{totalImages} 张</span>
+        <span className={styles.statsBadge}>{totalLikes} ♥</span>
+      </div>
     </div>
   )
 }

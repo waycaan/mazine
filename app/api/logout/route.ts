@@ -22,4 +22,7 @@
  * SOFTWARE.
  */
 
-import { NextResponse } from 'next/server'import { IronLoginService } from '@/lib/iron-session'export async function POST(request: Request) {  try {    await IronLoginService.logout()    return NextResponse.json({      success: true,      message: '登出成功'    })  } catch (error: any) {    return NextResponse.json(      { success: false, error: '注销失败' },      { status: 500 }    )  }}
+import { NextResponse } from 'next/server'
+import { IronLoginService } from '@/lib/iron-session'
+export const runtime = 'edge'
+export async function POST(request: Request) {  try {    await IronLoginService.logout()    return NextResponse.json({      success: true,      message: '登出成功'    })  } catch (error: any) {    return NextResponse.json(      { success: false, error: '注销失败' },      { status: 500 }    )  }}

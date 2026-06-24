@@ -24,83 +24,35 @@
 
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 const SESSION_COOKIE_NAME = 'session-id'
 const CSRF_COOKIE_NAME = 'csrf-token'
 class SessionStore {
   private static sessions = new Map<string, { username: string; isLoggedIn: boolean; createdAt: number }>()
-  private static readonly SESSION_FILE = path.join(process.cwd(), '.sessions.json')
-  private static initialized = false
-  private static init() {
-    if (this.initialized) return
-    try {
-      if (fs.existsSync(this.SESSION_FILE)) {
-        const data = fs.readFileSync(this.SESSION_FILE, 'utf8')
-        const sessionsArray = JSON.parse(data)
-        const now = Date.now()
-        const validSessions = sessionsArray.filter((session: any) => {
-          return now - session.createdAt < 7 * 24 * 60 * 60 * 1000
-        })
-        this.sessions.clear()
-        validSessions.forEach((session: any) => {
-          this.sessions.set(session.sessionId, {
-            username: session.username,
-            isLoggedIn: session.isLoggedIn,
-            createdAt: session.createdAt
-          })
-        })
-        console.log(`🔄 [Session] 从文件加载 ${validSessions.length} 个有效session`)
-      }
-    } catch (error) {
-      console.error('🚨 [Session] 加载session文件失败:', error)
-    }
-    this.initialized = true
-  }
-  private static save() {
-    try {
-      const sessionsArray = Array.from(this.sessions.entries()).map(([sessionId, data]) => ({
-        sessionId,
-        ...data
-      }))
-      fs.writeFileSync(this.SESSION_FILE, JSON.stringify(sessionsArray, null, 2))
-      console.log(`💾 [Session] 已保存 ${sessionsArray.length} 个session到文件`)
-    } catch (error) {
-      console.error('🚨 [Session] 保存session文件失败:', error)
-    }
-  }
+
   static generateSessionId(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36)
   }
+
   static createSession(username: string): string {
-    this.init() 
     const sessionId = this.generateSessionId()
     this.sessions.set(sessionId, {
       username,
       isLoggedIn: true,
       createdAt: Date.now()
     })
-    this.save()
     return sessionId
   }
+
   static isValidSession(sessionId: string): boolean {
-    this.init() 
     if (!sessionId) return false
     const session = this.sessions.get(sessionId)
-    console.log('🔍 Session验证详情:', {
-      sessionId: sessionId.substring(0, 8) + '...',
-      sessionExists: !!session,
-      isLoggedIn: session?.isLoggedIn,
-      totalSessions: this.sessions.size,
-      allSessionIds: Array.from(this.sessions.keys()).map(id => id.substring(0, 8) + '...')
-    });
     return !!(session?.isLoggedIn)
   }
+
   static deleteSession(sessionId: string): void {
-    this.init() 
     this.sessions.delete(sessionId)
-    this.save()
   }
+
   static getStats() {
     return {
       totalSessions: this.sessions.size,

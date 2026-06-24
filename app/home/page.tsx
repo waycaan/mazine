@@ -51,7 +51,6 @@ import {
   processFile
 } from '@/utils/imageProcess'
 import { createPreviewImage } from '@/components/utils/thumbs'
-import { batchOperationManager } from '@/utils/batch-operation-manager'
 import { useI18n } from '@/i18n/context'
 import { AuthClient } from '@/utils/auth-client'
 import { frontendJsonManager } from '@/utils/frontend-json-manager'
@@ -61,11 +60,15 @@ import { LogoutService } from '@/utils/logout-service'
 interface UploadedFile {
   fileName: string;
   url: string;
+  previewUrl: string;
   markdown: string;
   bbcode: string;
   uploadTime: string;
   size: number;
   isLiked: boolean;
+  width?: number;
+  height?: number;
+  format?: string;
 }
 interface UploadError {
   fileName: string;
@@ -93,6 +96,22 @@ console.log(
   "%c Powered by Mazine - Copyright (C) 2024 waycaan ",
   "background: #3B82F6; color: white; padding: 5px; border-radius: 3px;"
 );
+function truncName(str: string, maxW = 24): string {
+  if (!str) return str
+  const w = (s: string) => { let v = 0; for (const c of s) v += /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/.test(c) ? 2 : 1; return v }
+  if (w(str) <= maxW) return str
+  const d = str.lastIndexOf('.')
+  const ext = d > 0 ? str.slice(d) : ''
+  const base = ext ? str.slice(0, str.length - ext.length) : str
+  const extW = w(ext)
+  const keep = maxW - extW - 3
+  if (keep < 4) return str.slice(0, maxW - 3) + '...'
+  let si = 0, sw = 0
+  while (si < base.length && sw < Math.ceil(keep / 2)) { sw += /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/.test(base[si]) ? 2 : 1; si++ }
+  let ei = base.length, ew = 0
+  while (ei > si && ew < Math.floor(keep / 2)) { ew += /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/.test(base[ei - 1]) ? 2 : 1; ei-- }
+  return base.slice(0, si) + '...' + base.slice(ei) + ext
+}
 interface UploadStatus {
   stage: 'idle' | 'checking' | 'processing' | 'uploading' | 'indexing' | 'complete';
   totalFiles: number;
@@ -155,11 +174,11 @@ const calculateTotalProgress = (status: UploadStatus): number => {
 export default function HomePage() {
   const { isDarkMode, toggleTheme } = useTheme()
   const { t } = useI18n()
-  const { index, refreshIndex, invalidateCache } = useOptimizedImageIndex()
+  const { index, refreshIndex, prefetchIndex, setIndexData, updateIndexOptimistically, invalidateCache } = useOptimizedImageIndex()
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [compress, setCompress] = useState(false)
+  const [compressionQuality, setCompressionQuality] = useState<number>(1)
   const [convertToWebP, setConvertToWebP] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [currentImages, setCurrentImages] = useState<UploadedFile[]>([])
@@ -183,20 +202,15 @@ export default function HomePage() {
     const isPageRefresh = (performance as any).navigation?.type === 1 ||
                          (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload';
     if (isPageRefresh) {
-      console.log('🔄 [Home] 检测到页面刷新，清空所有本地状态');
       setCurrentImages([]);
       setUploadErrors([]);
       setPreviewImage(null);
       setCopiedType(null);
-      console.log('🚀 [Home] 页面刷新清理完成，等待新数据加载');
     }
   }, []);
   useEffect(() => {
-    invalidateCache();
     frontendJsonManager.clearCurrentJson();
-    setTimeout(() => {
-      refreshIndex();
-    }, 100);
+    prefetchIndex();
   }, []); 
   useEffect(() => {
     if (index) {
@@ -224,9 +238,8 @@ export default function HomePage() {
     });
     const existingFileNames = index ? index.images.map(img => img.fileName) : [];
     const processedFileNames = new Set<string>(existingFileNames);
-    let processedFiles: File[] = [];
-    let previewFiles: File[] = [];
-    let finalFileNames: string[] = []; 
+    let finalFileNames: string[] = [];
+    const fileItems: { file: File; uniqueFileName: string; originalIndex: number }[] = [];
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
       const nameWithoutHash = file.name.replace(/#/g, '-hash-');
@@ -234,55 +247,16 @@ export default function HomePage() {
         .replace(/[<>:"/\\|?*]/g, '-')  
         .replace(/\s+/g, ' ')           
         .trim();
-      let dimensions = '';
-      try {
-        const img = new Image();
-        const imageUrl = URL.createObjectURL(file);
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            dimensions = `${img.width}x${img.height}`;
-            URL.revokeObjectURL(imageUrl);
-            resolve();
-          };
-          img.onerror = () => {
-            URL.revokeObjectURL(imageUrl);
-            reject(new Error('Failed to load image'));
-          };
-          img.src = imageUrl;
-        });
-      } catch (error) {
-        console.warn('获取图片尺寸失败:', error);
-        dimensions = '未知尺寸';
-      }
-      setUploadStatus((prev: UploadStatus) => ({
-        ...prev,
-        currentFile: file.name,
-        currentFileInfo: {
-          name: file.name,
-          size: formatFileSize(file.size),
-          dimensions: dimensions
-        },
-        progress: {
-          current: i,
-          total: fileArray.length,
-          percentage: (i / fileArray.length) * 100
-        }
-      }));
       if (!cleanFileName || cleanFileName.trim() === '') {
         setUploadErrors((prev: UploadError[]) => [...prev, {
           fileName: file.name,
           error: '文件名处理后为空，请重新命名后上传'
         }]);
+        finalFileNames.push('');
         continue;
       }
       const uniqueFileName = generateUniqueFileName(cleanFileName, Array.from(processedFileNames));
-      console.log(`🔍 [重名检测] 文件 ${i + 1}/${fileArray.length}:`);
-      console.log(`   - 原始文件名: ${file.name}`);
-      console.log(`   - 清理后文件名: ${cleanFileName}`);
-      console.log(`   - 最终文件名: ${uniqueFileName}`);
-      console.log(`   - 当前已处理文件名: [${Array.from(processedFileNames).join(', ')}]`);
       if (uniqueFileName !== cleanFileName) {
-        console.log(`🔄 [重名检测] 检测到重名，重命名: ${cleanFileName} → ${uniqueFileName}`);
         setUploadStatus((prev: UploadStatus) => ({
           ...prev,
           processType: 'rename',
@@ -291,53 +265,32 @@ export default function HomePage() {
       }
       processedFileNames.add(uniqueFileName);
       finalFileNames.push(uniqueFileName);
+      fileItems.push({ file, uniqueFileName, originalIndex: i });
+    }
+    setUploadStatus((prev: UploadStatus) => ({
+      ...prev,
+      stage: 'processing',
+      progress: { current: 0, total: fileItems.length, percentage: 0 }
+    }));
+    const processOne = async (item: { file: File; uniqueFileName: string; originalIndex: number }) => {
+      const { file, uniqueFileName } = item;
       try {
         let processedFile: File | null = null;
         if (isOverSizeLimit(file)) {
-          if (compress || convertToWebP) {
-            setUploadStatus((prev: UploadStatus) => ({
-              ...prev,
-              stage: 'processing',
-              processType: convertToWebP && compress ? 'convert' : (convertToWebP ? 'convert' : 'compress'),
-              currentFileInfo: {
-                name: file.name,
-                size: formatFileSize(file.size)
-              }
-            }));
+          if (compressionQuality || convertToWebP) {
             processedFile = await processFile(file, {
               forceWebP: convertToWebP,
-              forceCompress: compress,
+              forceCompress: !!compressionQuality,
+              compressionQuality: compressionQuality || undefined,
               fileName: uniqueFileName
             });
-            if (processedFile) {
-              const compressionRatio = ((1 - processedFile.size / file.size) * 100).toFixed(1);
-              setUploadStatus((prev: UploadStatus) => ({
-                ...prev,
-                currentFileInfo: {
-                  name: file.name,
-                  size: formatFileSize(file.size),
-                  processedSize: formatFileSize(processedFile!.size),
-                  compressionRatio: `${compressionRatio}%`
-                }
-              }));
-            }
           } else {
-            setUploadStatus((prev: UploadStatus) => ({
-              ...prev,
-              stage: 'processing',
-              processType: 'convert'
-            }));
             processedFile = await processFile(file, {
               forceWebP: true,
               forceCompress: false,
               fileName: uniqueFileName
             });
             if (processedFile && isOverSizeLimit(processedFile)) {
-              setUploadStatus((prev: UploadStatus) => ({
-                ...prev,
-                stage: 'processing',
-                processType: 'compress'
-              }));
               processedFile = await processFile(processedFile, {
                 forceWebP: false,
                 forceCompress: true,
@@ -346,58 +299,60 @@ export default function HomePage() {
             }
           }
           if (processedFile && isOverSizeLimit(processedFile)) {
-            setUploadErrors((prev: UploadError[]) => [...prev, {
-              fileName: file.name,
-              error: '文件过大，即使优化后仍超出限制(4.4MB)'
-            }]);
-            continue;
+            return { status: 'error' as const, fileName: file.name, error: '文件过大，即使优化后仍超出限制(4.4MB)' };
           }
-        } else if (convertToWebP || compress) {
-          setUploadStatus((prev: UploadStatus) => ({
-            ...prev,
-            stage: 'processing',
-            processType: convertToWebP && compress ? 'convert' : (convertToWebP ? 'convert' : 'compress')
-          }));
+        } else if (convertToWebP || compressionQuality) {
           processedFile = await processFile(file, {
             forceWebP: convertToWebP,
-            forceCompress: compress,
+            forceCompress: !!compressionQuality,
+            compressionQuality: compressionQuality || undefined,
             fileName: uniqueFileName
           });
         } else {
           processedFile = file;
         }
-        if (processedFile) {
-          processedFiles.push(processedFile);
-          try {
-            const previewFile = await createPreviewImage(processedFile, uniqueFileName);
-            previewFiles.push(previewFile);
-          } catch (previewError) {
-            console.error('生成预览图失败:', previewError);
-            setUploadErrors((prev: UploadError[]) => [...prev, {
-              fileName: file.name,
-              error: '生成预览图失败'
-            }]);
-            continue;
-          }
+        if (!processedFile) {
+          return { status: 'error' as const, fileName: file.name, error: '处理失败' };
         }
+        let previewFile: Blob | null = null;
+        try {
+          previewFile = await createPreviewImage(processedFile, uniqueFileName);
+        } catch {
+          return { status: 'error' as const, fileName: file.name, error: '生成预览图失败' };
+        }
+        return { status: 'ok' as const, processedFile, previewFile, originalIndex: item.originalIndex, fileName: file.name };
       } catch (error) {
-        console.error(`处理文件失败: ${file.name}`, error);
-        setUploadErrors((prev: UploadError[]) => [...prev, {
-          fileName: file.name,
-          error: error instanceof Error ? error.message : '未知错误'
-        }]);
+        return { status: 'error' as const, fileName: file.name, error: error instanceof Error ? error.message : '未知错误' };
+      }
+    };
+    const processResults = await Promise.all(fileItems.map(processOne));
+    const processedFiles: File[] = [];
+    const previewFiles: Blob[] = [];
+    for (const result of processResults) {
+      if (result.status === 'error') {
+        setUploadErrors((prev: UploadError[]) => [...prev, { fileName: result.fileName, error: result.error }]);
+      } else {
+        processedFiles[result.originalIndex] = result.processedFile;
+        previewFiles[result.originalIndex] = result.previewFile;
       }
     }
     setUploadStatus((prev: UploadStatus) => ({
       ...prev,
+      progress: { current: fileItems.length, total: fileItems.length, percentage: 100 }
+    }));
+    setUploadStatus((prev: UploadStatus) => ({
+      ...prev,
       stage: 'uploading'
     }));
-    const totalFiles = processedFiles.length;
+    const uploadItems = processedFiles
+      .map((file, i) => ({ file, preview: previewFiles[i], finalName: finalFileNames[i] }))
+      .filter(item => item.file);
+    const totalFiles = uploadItems.length;
     const allUploadedItems: any[] = [];
     const allDisplayFiles: any[] = [];
-    console.log(`🚀 [Home] 开始批量上传 ${totalFiles} 个文件`);
-    for (let i = 0; i < processedFiles.length; i++) {
-      const file = processedFiles[i];
+    let lastNewIndex: any = null;
+    for (let i = 0; i < uploadItems.length; i++) {
+      const { file, preview, finalName } = uploadItems[i];
       try {
         let uploadDimensions = '';
         try {
@@ -435,23 +390,37 @@ export default function HomePage() {
         }));
         const formData = new FormData();
         formData.append('files', file);
-        formData.append('previews', previewFiles[i]);
+        formData.append('previews', preview);
         formData.append(`format_${file.name}`, file.name.split('.').pop() || '');
-        formData.append('finalFileName', finalFileNames[i]);
+        formData.append('finalFileName', finalName);
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
         const data = await response.json();
         if (data.success) {
-          console.log(`🚀 [Home] 文件上传成功: ${file.name}`);
           const newImageItems = data.data?.newImageItems || [];
           allUploadedItems.push(...newImageItems);
+          if (data.data?.newIndex) lastNewIndex = data.data.newIndex;
           const validFiles = data.data?.files || data.files || [];
-          const displayFiles = validFiles.filter((file: any) =>
-            file.fileName && !file.error && !file.fileName.startsWith('thumbs/')
+          const serverFile = validFiles.find((f: any) =>
+            f.fileName && !f.error && !f.fileName.startsWith('thumbs/')
           );
-          allDisplayFiles.push(...displayFiles);
+          const newItem = newImageItems[0] || {};
+          const ext = finalName.split('.').pop()?.toLowerCase() || '';
+          allDisplayFiles.push({
+            fileName: finalName,
+            url: serverFile?.url || '',
+            previewUrl: serverFile?.previewUrl || '',
+            markdown: serverFile?.markdown || `![${finalName}](${serverFile?.url || ''})`,
+            bbcode: serverFile?.bbcode || `[img]${serverFile?.url || ''}[/img]`,
+            uploadTime: newItem.uploadTime || new Date().toISOString(),
+            size: file.size,
+            isLiked: false,
+            width: newItem.width || 0,
+            height: newItem.height || 0,
+            format: ext
+          });
           setUploadStatus((prev: UploadStatus) => ({
             ...prev,
             completedFiles: prev.completedFiles + 1,
@@ -477,30 +446,16 @@ export default function HomePage() {
     }
     if (allUploadedItems.length > 0) {
       try {
-        console.log(`🚀 [Home] 开始批量JSON处理，共 ${allUploadedItems.length} 张图片`);
-        setUploadStatus((prev: UploadStatus) => ({
-          ...prev,
-          currentStep: '更新索引',
-          processingDetails: `正在更新图片索引 (${allUploadedItems.length}张)`,
-        }));
-        const updatedJson = frontendJsonManager.calculateUploadIncrement(allUploadedItems);
-        const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'batch-upload');
-        if (result.success) {
-          console.log(`🚀 [Home] 批量JSON更新成功，总数: ${result.newJson.totalCount}`);
-          if (allDisplayFiles.length > 0) {
-            setCurrentImages(prev => [...allDisplayFiles, ...prev]);
-          }
-          console.log(`🚀 [Home] 批量上传完成:`);
-          console.log(`   - 文件数量: ${allUploadedItems.length}`);
-          console.log(`   - 新的总数: ${result.newJson.totalCount}`);
-          console.log(`📋 [Home] 使用返回的最新JSON，无需重新获取`);
+        if (allDisplayFiles.length > 0) {
+          setCurrentImages(prev => [...allDisplayFiles, ...prev]);
+        }
+        if (lastNewIndex) {
+          setIndexData(lastNewIndex);
         } else {
-          console.error('🚀 [Home] 批量JSON更新失败:', result.error);
-          alert(`批量JSON更新失败: ${result.error}`);
+          prefetchIndex();
         }
       } catch (error: any) {
-        console.error('🚀 [Home] 批量JSON处理失败:', error);
-        alert(`批量JSON处理失败: ${error.message}`);
+        console.error('🚀 [Home] 处理失败:', error);
       }
     }
     const totalTime = Math.round((Date.now() - uploadStartTime) / 1000);
@@ -582,12 +537,16 @@ export default function HomePage() {
         <div className={styles.uploadArea}>
           <div className={styles.uploadOptions}>
             <label className={styles.uploadOptionLabel}>
-              <button
-                type="button"
-                className={`${styles.toggleSwitch} ${compress ? styles.checked : ''}`}
-                onClick={() => setCompress(!compress)}
-                aria-label={t('home.options.compress')}
-              />
+              <select
+                className={styles.selectInput}
+                value={compressionQuality}
+                onChange={(e) => setCompressionQuality(Number(e.target.value))}
+              >
+                <option value="1">无损</option>
+                <option value="0.9">90%</option>
+                <option value="0.8">80%</option>
+                <option value="0.7">70%</option>
+              </select>
               {t('home.options.compress')}
             </label>
             <label className={styles.uploadOptionLabel}>
@@ -705,21 +664,31 @@ export default function HomePage() {
                   className={styles.imagePreview}
                   onClick={() => setPreviewImage(image.url)}
                 >
-                  <img src={image.url} alt={image.fileName} />
+                  <img src={image.previewUrl || image.url} alt={image.fileName} />
                 </div>
                 <div className={styles.imageInfo}>
-                  <div className={styles.fileName}>{image.fileName}</div>
+                  <div className={styles.fileName} title={image.fileName}>{truncName(image.fileName)}</div>
                   <div className={styles.detailsGroup}>
                     <div className={styles.detailItem}>
                       <span>{formatFileSize(image.size)}</span>
                       <span>{formatDate(image.uploadTime)}</span>
                     </div>
+                    {(image.width || image.height) ? (
+                      <div className={styles.detailItem}>
+                        <span>{image.width} × {image.height}</span>
+                        {image.format && <span>{image.format.toUpperCase()}</span>}
+                      </div>
+                    ) : image.format ? (
+                      <div className={styles.detailItem}>
+                        <span>{image.format.toUpperCase()}</span>
+                      </div>
+                    ) : null}
                   </div>
                   <div className={styles.urlGroup}>
                     {[
                       {
-                        displayValue: decodeURIComponent(image.url), 
-                        copyValue: image.url, 
+                        displayValue: decodeURIComponent(image.url),
+                        copyValue: image.url,
                         label: 'URL',
                         className: styles.buttonUrl
                       },
@@ -752,6 +721,31 @@ export default function HomePage() {
                       </div>
                     ))}
                   </div>
+                  <button
+                    className={`${styles.button} ${styles.likeToggle} ${image.isLiked ? styles.likeToggleActive : ''}`}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const newLiked = !image.isLiked;
+                      setCurrentImages(prev => prev.map(img =>
+                        img.fileName === image.fileName ? { ...img, isLiked: newLiked } : img
+                      ));
+                      if (index) {
+                        updateIndexOptimistically({ type: 'toggleLike', fileName: image.fileName, data: { isLiked: newLiked } });
+                      }
+                      try {
+                        await fetch('/api/likes/toggle', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ fileNames: [image.fileName], isLiked: newLiked })
+                        });
+                        prefetchIndex();
+                      } catch (err) {
+                        console.error('收藏失败:', err);
+                      }
+                    }}
+                  >
+                    {image.isLiked ? '♥ 已收藏' : '♡ 收藏'}
+                  </button>
                 </div>
               </div>
             ))}

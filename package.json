@@ -10,7 +10,9 @@
     "clean": "rm -rf .next node_modules/.cache",
     "rebuild": "npm run clean && npm install && npm run build",
     "vercel-build": "next build",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:deploy": "npm run pages:build && npx wrangler pages deploy .vercel/output/static"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.478.0",
@@ -34,9 +36,11 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "autoprefixer": "10.4.16",
     "postcss": "8.4.31",
-    "tailwindcss": "3.3.5"
+    "tailwindcss": "3.3.5",
+    "wrangler": "^4.103.0"
   },
   "engines": {
     "node": ">=18.0.0"

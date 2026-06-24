@@ -30,9 +30,10 @@ const API_INFO = {
   license: 'MIT'
 } as const;
 import { NextResponse } from 'next/server'
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { createPreviewImage } from '@/components/utils/thumbs'
 import { withErrorHandler, createApiResponse, ValidationError } from '@/lib/error-handler'
+import { withIronAuth } from '@/lib/iron-session'
 import { validateAndSanitizeFilename, validateImageType } from '@/utils/imageProcess'
 import { imageIndexManager } from '@/utils/image-index-manager'
 import type { NextRequest } from 'next/server'
@@ -54,16 +55,15 @@ function getPublicUrl(fileName: string) {
   const bucket = process.env.S3_BUCKET_NAME
   return `${endpoint}/${bucket}/${encodedFileName}`
 }
-export const runtime = 'nodejs'
+export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60
 function sanitizeMetadataValue(value: string): string {
   if (/[^\x00-\x7F]/.test(value)) {
     return `base64:${Buffer.from(value).toString('base64')}`;
   }
   return value;
 }
-export const POST = withErrorHandler(async (request: NextRequest) => {
+export const POST = withIronAuth(withErrorHandler(async (request: NextRequest) => {
   const formData = await request.formData()
   const files = formData.getAll('files') as File[]
   const previewFiles = formData.getAll('previews') as File[]
@@ -98,6 +98,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       if (!finalFileName) {
         throw new ValidationError('Final file name not provided by frontend')
       }
+      // Validate finalFileName: no path traversal
+      if (finalFileName.includes('..') || finalFileName.startsWith('/') || finalFileName.includes('\\')) {
+        throw new ValidationError('Invalid file name: path traversal detected')
+      }
       console.log(`🔍 [服务器] 文件 ${i + 1}/${files.length}:`);
       console.log(`   - 原始文件名: ${file.name}`);
       console.log(`   - 前端传递的最终文件名: ${finalFileName}`);
@@ -107,40 +111,16 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       }
       const buffer = Buffer.from(await file.arrayBuffer())
       let imageDimensions = { width: 0, height: 0 };
-      const startTime = Date.now();
       try {
-        const sharp = require('sharp');
-        const metadata = await Promise.race([
-          sharp(buffer).metadata(),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Sharp处理超时')), 5000) 
-          )
-        ]);
-        imageDimensions = {
-          width: metadata.width || 0,
-          height: metadata.height || 0
-        };
-        const processingTime = Date.now() - startTime;
-        console.log(`📐 图片尺寸: ${imageDimensions.width}x${imageDimensions.height} (耗时: ${processingTime}ms)`);
-        if (processingTime > 2000) {
-          console.warn(`⚠️ Sharp处理耗时过长: ${processingTime}ms，文件: ${file.name}`);
-        }
+        imageDimensions = await getImageDimensionsFromHeader(buffer);
       } catch (error) {
-        const processingTime = Date.now() - startTime;
-        console.warn(`获取图片尺寸失败 (耗时: ${processingTime}ms):`, error);
-        try {
-          imageDimensions = await getImageDimensionsFromHeader(buffer);
-          console.log(`📐 从文件头获取尺寸: ${imageDimensions.width}x${imageDimensions.height}`);
-        } catch (headerError) {
-          console.warn('从文件头获取尺寸也失败:', headerError);
-        }
+        console.warn('Failed to get image dimensions:', error);
       }
       await s3Client.send(new PutObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
         Key: finalFileName,
         Body: buffer,
         ContentType: file.type,
-        ACL: 'public-read',
         Metadata: {
           'original-name': sanitizeMetadataValue(sanitizedName),
           'final-name': sanitizeMetadataValue(finalFileName),
@@ -158,8 +138,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         Bucket: process.env.S3_BUCKET_NAME,
         Key: previewFileName,
         Body: previewBuffer,
-        ContentType: 'image/webp',
-        ACL: 'public-read'
+        ContentType: 'image/webp'
       }))
       const url = getPublicUrl(finalFileName)
       const previewUrl = getPublicUrl(previewFileName)
@@ -198,7 +177,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       })
     }
   }
-  console.log(`🚀 [上传API] 采用前端主导JSON模式，跳过服务器端JSON修改`);
   console.log(`🚀 [上传API] 成功上传 ${allUploadedFileInfo.length} 个文件`);
   const newImageItems = allUploadedFileInfo.map(info => ({
     fileName: info.fileName,
@@ -208,11 +186,46 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     height: info.height,
     isLiked: false
   }));
+
+  // Server-side index update: read index.json via S3Client, append new images, write back
+  let newIndex = null;
+  if (newImageItems.length > 0) {
+    try {
+      let index = { version: '1.0.0', lastUpdated: new Date().toISOString(), totalCount: 0, images: [] as any[], likedCount: 0 };
+      try {
+        const getRes = await s3Client.send(new GetObjectCommand({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: 'index.json'
+        }));
+        const content = await getRes.Body?.transformToString();
+        if (content) index = JSON.parse(content);
+      } catch {}
+
+      const existingNames = new Set(index.images.map((img: any) => img.fileName));
+      const unique = newImageItems.filter(item => !existingNames.has(item.fileName));
+      index.images.unshift(...unique);
+      index.totalCount = index.images.length;
+      index.likedCount = index.images.filter((img: any) => img.isLiked).length;
+      index.lastUpdated = new Date().toISOString();
+
+      await s3Client.send(new PutObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: 'index.json',
+        Body: JSON.stringify(index),
+        ContentType: 'application/json'
+      }));
+      newIndex = index;
+    } catch (e) {
+      console.warn('Server-side index update failed:', e);
+    }
+  }
+
   return NextResponse.json(createApiResponse(true, {
     files: uploadedFiles,
-    newImageItems: newImageItems 
+    newImageItems: newImageItems,
+    newIndex: newIndex
   }))
-})
+}))
 async function getImageDimensionsFromHeader(buffer: Buffer): Promise<{ width: number; height: number }> {
   if (buffer[0] === 0xFF && buffer[1] === 0xD8) {
     for (let i = 2; i < buffer.length - 8; i++) {

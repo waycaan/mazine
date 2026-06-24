@@ -24,6 +24,7 @@
 
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+export const runtime = 'edge'
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { ImageIndex } from '@/types/image-index';
 import { withIronAuth } from '@/lib/iron-session';
@@ -56,8 +57,7 @@ async function handlePOST(request: NextRequest) {
       Bucket: bucketName,
       Key: indexKey,
       Body: jsonData,
-      ContentType: 'application/json',
-      ACL: 'public-read'
+      ContentType: 'application/json'
     }));
     const writeTime = Date.now() - startTime;
     console.log(`🚀 [JSON覆盖API] JSON写入S3完成，耗时: ${writeTime}ms`);

@@ -25,7 +25,10 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { imageIndexManager } from '@/utils/image-index-manager'
-export async function POST(request: NextRequest) {
+import { withIronAuth } from '@/lib/iron-session'
+export const runtime = 'edge'
+
+async function handlePOST(request: NextRequest) {
   try {
     const body = await request.json()
     console.log('批量收藏请求:', body)
@@ -63,7 +66,7 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   try {
     const body = await request.json()
     console.log('批量取消收藏请求:', body)
@@ -101,3 +104,6 @@ export async function DELETE(request: NextRequest) {
     )
   }
 }
+
+export const POST = withIronAuth(handlePOST);
+export const DELETE = withIronAuth(handleDELETE);

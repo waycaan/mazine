@@ -22,4 +22,7 @@
  * SOFTWARE.
  */
 
-import { NextResponse } from 'next/server'import { IronLoginService } from '@/lib/iron-session'export async function POST(request: Request) {  try {    const { username, password } = await request.json()    if (!username || !password) {      return NextResponse.json(        { success: false, error: '用户名和密码不能为空' },        { status: 400 }      )    }    if (username.length > 50 || password.length > 100) {      return NextResponse.json(        { success: false, error: '输入长度超出限制' },        { status: 400 }      )    }    await IronLoginService.login(username, password)    return NextResponse.json({      success: true,      data: { username },      message: '登录成功'    })  } catch (error: any) {    return NextResponse.json(      { success: false, error: error.message || '登录失败' },      { status: 401 }    )  }}
+import { NextResponse } from 'next/server'
+import { IronLoginService } from '@/lib/iron-session'
+export const runtime = 'edge'
+export async function POST(request: Request) {  try {    const { username, password } = await request.json()    if (!username || !password) {      return NextResponse.json(        { success: false, error: '用户名和密码不能为空' },        { status: 400 }      )    }    if (username.length > 50 || password.length > 100) {      return NextResponse.json(        { success: false, error: '输入长度超出限制' },        { status: 400 }      )    }    await IronLoginService.login(username, password)    return NextResponse.json({      success: true,      data: { username },      message: '登录成功'    })  } catch (error: any) {    return NextResponse.json(      { success: false, error: error.message || '登录失败' },      { status: 401 }    )  }}

@@ -32,7 +32,9 @@ const API_INFO = {
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { S3Client, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
+export const runtime = 'edge'
 import { imageIndexManager } from '@/utils/image-index-manager'
+import { withIronAuth } from '@/lib/iron-session'
 const s3Client = new S3Client({
   region: process.env.S3_REGION || 'us-east-1',
   credentials: {
@@ -64,7 +66,7 @@ async function deleteS3ObjectWithRetry(bucket: string, key: string, maxRetries =
   }
   return false;
 }
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   try {
     const body = await request.json()
     console.log('批量删除请求:', body)
@@ -78,7 +80,7 @@ export async function DELETE(request: NextRequest) {
     console.log('批量删除文件:', fileNames)
     console.log(`🚀 [删除API] 采用前端主导JSON模式，只删除S3文件`);
     console.log(`🚀 [删除API] 准备删除 ${fileNames.length} 个文件`);
-    setImmediate(async () => {
+    setTimeout(async () => {
       console.log('🔄 开始后台删除S3文件...');
       const deleteResults = await Promise.all(fileNames.map(async (fileName: string) => {
         try {
@@ -131,3 +133,5 @@ export async function DELETE(request: NextRequest) {
     )
   }
 }
+
+export const DELETE = withIronAuth(handleDELETE);

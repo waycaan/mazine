@@ -24,10 +24,10 @@
 
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
+export const runtime = 'edge'
 import { imageIndexManager } from '@/utils/image-index-manager';
 import { ImageIndexResponse } from '@/types/image-index';
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+import { withIronAuth } from '@/lib/iron-session';
 export async function GET(request: NextRequest): Promise<NextResponse<ImageIndexResponse>> {
   try {
     const { searchParams } = new URL(request.url);
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ImageIndex
     }, { status: 500 });
   }
 }
-export async function POST(request: NextRequest): Promise<NextResponse<ImageIndexResponse>> {
+async function handlePOST(request: NextRequest): Promise<NextResponse<ImageIndexResponse>> {
   try {
     console.log('🔄 手动重建图片索引...');
     const index = await imageIndexManager.rebuildIndex();
@@ -86,3 +86,5 @@ export async function POST(request: NextRequest): Promise<NextResponse<ImageInde
     }, { status: 500 });
   }
 }
+
+export const POST = withIronAuth(handlePOST);

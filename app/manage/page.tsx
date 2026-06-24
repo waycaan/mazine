@@ -39,8 +39,6 @@ import { useTheme } from '@/hooks/useTheme'
 import { useSelection } from '@/hooks/useSelection'
 import { useOptimizedImageIndex } from '@/hooks/useOptimizedImageIndex'
 import { frontendJsonManager } from '@/utils/frontend-json-manager'
-import { batchOperationManager } from '@/utils/batch-operation-manager'
-
 import { ImageCard } from '@/components/common/ImageCard'
 import { Header } from '@/components/common/Header'
 import { ImageModal } from '@/components/common/ImageModal'
@@ -119,6 +117,7 @@ export default function ManagePage() {
     isLoading: indexLoading,
     error: indexError,
     refreshIndex,
+    prefetchIndex,
     updateIndexOptimistically,
     invalidateCache,
     updateMetadataSilently
@@ -207,29 +206,24 @@ export default function ManagePage() {
     updateIndexOptimistically(likeOperations);
     deselectAll();
     try {
-      const updatedJson = frontendJsonManager.calculateBatchLikeToggle(selectedArray, true);
-      const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'batch-like');
+      const res = await fetch('/api/likes/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileNames: selectedArray, isLiked: true })
+      });
+      const result = await res.json();
       if (result.success) {
-        console.log(`📋 [Manage] 收藏成功，使用返回的最新JSON`);
-        console.log(`   - 新的收藏总数: ${result.newJson.likedCount}`);
+        prefetchIndex();
       } else {
         alert(`批量收藏失败: ${result.error}`);
         selectedArray.forEach(fileName => {
-          updateIndexOptimistically({
-            type: 'toggleLike',
-            fileName,
-            data: { isLiked: false }
-          });
+          updateIndexOptimistically({ type: 'toggleLike', fileName, data: { isLiked: false } });
         });
       }
     } catch (error: any) {
       alert(`批量收藏失败: ${error.message}`);
       selectedArray.forEach(fileName => {
-        updateIndexOptimistically({
-          type: 'toggleLike',
-          fileName,
-          data: { isLiked: false }
-        });
+        updateIndexOptimistically({ type: 'toggleLike', fileName, data: { isLiked: false } });
       });
     }
   };
@@ -245,19 +239,16 @@ export default function ManagePage() {
     updateIndexOptimistically(removeOperations);
     deselectAll();
     try {
-      const updatedJson = frontendJsonManager.calculateDeleteDecrement(selectedArray);
-      const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'delete');
+      const res = await fetch('/api/images/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileNames: selectedArray })
+      });
+      const result = await res.json();
       if (result.success) {
-        const deleteResponse = await api.images.delete(selectedArray);
-        if (!deleteResponse.success) {
-          alert(`S3文件删除失败: ${deleteResponse.error}`);
-          await refreshIndex();
-        } else {
-          console.log(`📋 [Manage] 删除成功，使用返回的最新JSON`);
-          console.log(`   - 新的总数: ${result.newJson.totalCount}`);
-        }
+        prefetchIndex();
       } else {
-        alert(`JSON删除失败: ${result.error}`);
+        alert(`删除失败: ${result.error}`);
         await refreshIndex();
       }
     } catch (error: any) {
@@ -290,6 +281,8 @@ export default function ManagePage() {
             <div className={styles.controlBar}>
               <SelectionBar
                 selectedCount={selectedImages.size}
+                totalImages={index?.images.length || 0}
+                totalLikes={index?.likedCount || 0}
                 onSelectAll={() => selectAll(filteredImages.map(img => img.fileName))}
                 onDeselectAll={deselectAll}
                 onInvertSelection={() => invertSelection(filteredImages.map(img => img.fileName))}
@@ -343,20 +336,6 @@ export default function ManagePage() {
                 ))}
               </div>
             )}
-            {}
-            <div className={styles.statsInfo}>
-              <p>显示 {allDisplayImages.length} 张图片</p>
-              {}
-              {index && (
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
-                  <p>🔍 调试信息:</p>
-                  <p>JSON总数: {index.totalCount} | 数组长度: {index.images.length}</p>
-                  <p>JSON收藏: {index.likedCount} | 实际收藏: {index.images.filter(img => img.isLiked).length}</p>
-                  <p>最后更新: {new Date(index.lastUpdated).toLocaleTimeString()}</p>
-                  <p>显示收藏: {showLiked ? '是' : '否'} | 搜索词: "{searchTerm}"</p>
-                </div>
-              )}
-            </div>
           </div>
         )}
       </main>

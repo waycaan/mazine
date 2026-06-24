@@ -22,9 +22,6 @@
  * SOFTWARE.
  */
 
-import fs from 'fs';
-import path from 'path';
-
 export interface AppConfig {
   app: {
     name: string;
@@ -70,15 +67,6 @@ export interface AppConfig {
 class ConfigLoader {
   private static instance: ConfigLoader;
   private config: AppConfig | null = null;
-  private configPath: string;
-
-  private constructor() {
-    this.configPath = process.env.CONFIG_PATH || '/app/config/config.json';
-    
-    if (process.env.NODE_ENV !== 'production') {
-      this.configPath = path.join(process.cwd(), 'config', 'config.json');
-    }
-  }
 
   public static getInstance(): ConfigLoader {
     if (!ConfigLoader.instance) {
@@ -92,68 +80,49 @@ class ConfigLoader {
       return this.config;
     }
 
-    try {
-      if (!fs.existsSync(this.configPath)) {
-        throw new Error(`Configuration file not found: ${this.configPath}`);
-      }
+    this.config = {
+      app: {
+        name: 'mazine',
+        version: '1.0.0',
+        port: parseInt(process.env.PORT || '3000'),
+        language: process.env.NEXT_PUBLIC_LANGUAGE || 'zh',
+      },
+      auth: {
+        username: process.env.AUTH_USERNAME || '',
+        password: process.env.AUTH_PASSWORD || '',
+      },
+      storage: {
+        type: 's3',
+        s3: {
+          endpoint: process.env.S3_ENDPOINT || '',
+          region: process.env.S3_REGION || 'auto',
+          accessKey: process.env.S3_ACCESS_KEY || '',
+          secretKey: process.env.S3_SECRET_KEY || '',
+          bucketName: process.env.S3_BUCKET_NAME || '',
+          forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
+        },
+      },
+      cdn: {
+        enabled: !!process.env.NEXT_PUBLIC_CDN,
+        baseUrl: process.env.NEXT_PUBLIC_CDN,
+      },
+      security: {
+        poweredByHeader: false,
+        compress: true,
+        headers: {
+          xContentTypeOptions: 'nosniff',
+          xFrameOptions: 'DENY',
+          xXSSProtection: '1; mode=block',
+        },
+      },
+      features: {
+        imageOptimization: true,
+        thumbnailGeneration: true,
+        batchOperations: true,
+      },
+    };
 
-      const configContent = fs.readFileSync(this.configPath, 'utf8');
-      const parsedConfig = JSON.parse(configContent) as AppConfig;
-      
-      this.validateConfig(parsedConfig);
-      this.config = parsedConfig;
-      
-      this.setEnvironmentVariables(parsedConfig);
-      
-      console.log('✅ Configuration loaded successfully');
-      return this.config;
-    } catch (error) {
-      console.error('❌ Failed to load configuration:', error);
-      throw error;
-    }
-  }
-
-  private validateConfig(config: AppConfig): void {
-    const requiredFields = [
-      'auth.username',
-      'auth.password',
-      'storage.s3.endpoint',
-      'storage.s3.accessKey',
-      'storage.s3.secretKey',
-      'storage.s3.bucketName'
-    ];
-
-    for (const field of requiredFields) {
-      const value = this.getNestedValue(config, field);
-      if (!value) {
-        throw new Error(`Missing required configuration field: ${field}`);
-      }
-    }
-
-
-  }
-
-  private getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
-  }
-
-  private setEnvironmentVariables(config: AppConfig): void {
-    process.env.AUTH_USERNAME = config.auth.username;
-    process.env.AUTH_PASSWORD = config.auth.password;
-    
-    process.env.S3_ENDPOINT = config.storage.s3.endpoint;
-    process.env.S3_REGION = config.storage.s3.region;
-    process.env.S3_ACCESS_KEY = config.storage.s3.accessKey;
-    process.env.S3_SECRET_KEY = config.storage.s3.secretKey;
-    process.env.S3_BUCKET_NAME = config.storage.s3.bucketName;
-    process.env.S3_FORCE_PATH_STYLE = config.storage.s3.forcePathStyle.toString();
-    
-    if (config.cdn.enabled && config.cdn.baseUrl) {
-      process.env.NEXT_PUBLIC_CDN = config.cdn.baseUrl;
-    }
-    
-    process.env.NEXT_PUBLIC_LANGUAGE = config.app.language;
-    process.env.PORT = config.app.port.toString();
+    return this.config;
   }
 
   public getConfig(): AppConfig {

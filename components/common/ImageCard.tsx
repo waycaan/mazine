@@ -34,9 +34,26 @@ import styles from '@/app/styles/shared.module.css'
 import { formatDate, formatFileSize } from '@/utils/format'
 import { copyToClipboard } from '@/utils/clipboard'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useI18n } from '@/i18n/context'
 import { useLazyImageLoading } from '@/hooks/useLazyImageLoading'
+
+function truncName(str: string, maxW = 24): string {
+  if (!str) return str
+  const w = (s: string) => { let v = 0; for (const c of s) v += /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/.test(c) ? 2 : 1; return v }
+  if (w(str) <= maxW) return str
+  const d = str.lastIndexOf('.')
+  const ext = d > 0 ? str.slice(d) : ''
+  const base = ext ? str.slice(0, str.length - ext.length) : str
+  const extW = w(ext)
+  const keep = maxW - extW - 3
+  if (keep < 4) return str.slice(0, maxW - 3) + '...'
+  let si = 0, sw = 0
+  while (si < base.length && sw < Math.ceil(keep / 2)) { sw += /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/.test(base[si]) ? 2 : 1; si++ }
+  let ei = base.length, ew = 0
+  while (ei > si && ew < Math.floor(keep / 2)) { ew += /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/.test(base[ei - 1]) ? 2 : 1; ei-- }
+  return base.slice(0, si) + '...' + base.slice(ei) + ext
+}
 interface ImageCardProps {
   fileName: string
   url: string
@@ -170,7 +187,7 @@ export function ImageCard({
         )}
       </div>
       <div className={styles.imageInfo}>
-        <div className={styles.fileName}>{fileName}</div>
+        <div className={styles.fileName} title={fileName}>{truncName(fileName)}</div>
         <div className={styles.detailsGroup}>
           <div className={styles.detailItem}>
             <span>

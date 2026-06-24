@@ -99,6 +99,7 @@ export default function LikesPage() {
     isLoading: indexLoading,
     error: indexError,
     refreshIndex,
+    prefetchIndex,
     updateIndexOptimistically,
     invalidateCache,
     updateMetadataSilently
@@ -158,29 +159,24 @@ export default function LikesPage() {
     updateIndexOptimistically(unlikeOperations);
     deselectAll();
     try {
-      const updatedJson = frontendJsonManager.calculateBatchLikeToggle(selectedArray, false);
-      const result = await frontendJsonManager.sendJsonToServer(updatedJson, 'batch-unlike');
+      const res = await fetch('/api/likes/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileNames: selectedArray, isLiked: false })
+      });
+      const result = await res.json();
       if (result.success) {
-        console.log(`📋 [Likes] 取消收藏成功，使用返回的最新JSON`);
-        console.log(`   - 新的收藏总数: ${result.newJson.likedCount}`);
+        prefetchIndex();
       } else {
         alert(`批量取消收藏失败: ${result.error}`);
         selectedArray.forEach(fileName => {
-          updateIndexOptimistically({
-            type: 'toggleLike',
-            fileName,
-            data: { isLiked: true }
-          });
+          updateIndexOptimistically({ type: 'toggleLike', fileName, data: { isLiked: true } });
         });
       }
     } catch (error: any) {
       alert(`批量取消收藏失败: ${error.message}`);
       selectedArray.forEach(fileName => {
-        updateIndexOptimistically({
-          type: 'toggleLike',
-          fileName,
-          data: { isLiked: true }
-        });
+        updateIndexOptimistically({ type: 'toggleLike', fileName, data: { isLiked: true } });
       });
     }
   };

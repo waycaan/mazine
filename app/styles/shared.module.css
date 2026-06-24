@@ -1,4 +1,10 @@
-/* =============== 主题变量 =============== */
+/* ======================================================================
+   Mazine Shared Styles
+   Sections: Variables → Layout → Nav → Auth → Grid → Cards → Modals
+             → Upload → Controls → Timeline → States → Dark Mode → Animations
+   ====================================================================== */
+
+/* =============== 1. CSS Variables =============== */
 .container {
   min-height: 100vh;
   width: 100vw;
@@ -14,161 +20,22 @@
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
-
-  /* 全局颜色变量 */
-  --blue-primary: #302f2f;    /* 主要蓝色 */
-  --blue-secondary: #302f2f;  /* 次要蓝色 */
-  --yellow-primary: #eab308;  /* 主要黄色 */
-  --white: #fff;              /* 白色 */
-  --black: #000;              /* 黑色 */
-  --button-padding-base: 10px 20px;
-  --button-padding-large: 12px 26px;
+  --blue-primary: #302f2f;
+  --yellow-primary: #eab308;
+  --white: #fff;
+  --black: #000;
   --button-font-base: 16px;
-  --button-font-large: 18px;
-
-  /* 日间主题变量 */
-  --text-primary: var(--black);       /* 主要文本颜色 */
-  --text-secondary: #666;             /* 次要文本颜色 */
-  --border-color: var(--blue-primary);/* 边框颜色 */
-  --card-bg: rgba(255, 255, 255, 0.8);  /* 卡片背景色 */
-  --button-hover: var(--blue-primary);/* 按钮悬停颜色 */
-  --input-bg: rgba(0, 0, 0, 0.05);    /* 输入框背景色 */
-  --highlight-button-bg: var(--blue-primary);    /* 高亮按钮背景色 */
-  --highlight-button-text: var(--white);         /* 高亮按钮文本色 */
-  --highlight-button-border: transparent;        /* 高亮按钮边框色 */
-  --upload-icon-color: #3b83f6;      /* 上传图标颜色 */
+  --text-primary: var(--black);
+  --text-secondary: #666;
+  --border-color: var(--blue-primary);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --button-hover: var(--blue-primary);
+  --input-bg: rgba(0, 0, 0, 0.05);
 }
 
-/* =============== 顶栏组件 =============== */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  min-height: 50px; /* 减少最小高度，更紧凑 */
-  backdrop-filter: blur(12px);
-  background: var(--card-bg);
-  z-index: 50;
-  transition: height 0.3s ease; /* 添加高度变化动画 */
-}
-
-.headerContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  min-height: 50px;
-  padding: 4px 24px; /* 减少内边距，更紧凑 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap; /* 允许换行 */
-  gap: 8px; /* 减少间距 */
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 100%;
-  order: 1; /* 确保logo排在最左侧 */
-  flex-shrink: 0; /* 防止logo被压缩 */
-}
-
-.logoImage {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  display: block;
-  margin: auto 0;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  order: 2; /* 让导航区域排在中间 */
-  flex: 1; /* 占据剩余空间 */
-  justify-content: flex-end; /* 导航按钮靠右对齐 */
-  margin-right: 16px; /* 与右侧控制区域保持间距 */
-  min-width: 0;
-  overflow: hidden; /* 防止溢出 */
-}
-
-/* 右侧控制区域 */
-.rightControls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  order: 3; /* 确保排在最右侧 */
-  flex-shrink: 0; /* 防止右侧控制区域被压缩 */
-  position: relative; /* 为回顶部按钮定位 */
-}
-
-/* 小屏幕时调整导航间距和布局 */
-@media (max-width: 768px) {
-  .header {
-    min-height: 70px; /* 减少最小高度，更紧凑 */
-  }
-
-  .headerContent {
-    padding: 6px 16px; /* 减少内边距 */
-    min-height: 70px;
-    align-items: flex-start; /* 改为顶部对齐 */
-    flex-direction: column; /* 改为垂直布局 */
-    justify-content: center; /* 垂直居中 */
-  }
-
-  .logo {
-    order: 1;
-    align-self: flex-start; /* logo靠左 */
-  }
-
-  .nav {
-    order: 2;
-    gap: 10px; /* 减少间距 */
-    justify-content: center; /* 导航居中 */
-    margin-right: 0;
-    width: 100%;
-  }
-
-  .rightControls {
-    order: 3;
-    gap: 6px; /* 减少间距 */
-    position: absolute;
-    top: 6px; /* 调整位置 */
-    right: 16px; /* 控制区域绝对定位到右上角 */
-  }
-}
-
-@media (max-width: 600px) {
-  .header {
-    min-height: 80px; /* 减少最小高度 */
-  }
-
-  .headerContent {
-    padding: 6px 12px; /* 减少内边距 */
-    min-height: 80px;
-  }
-
-  .nav {
-    gap: 8px;
-    flex-wrap: wrap; /* 允许按钮换行 */
-  }
-
-  .rightControls {
-    gap: 4px; /* 进一步减少间距 */
-    top: 6px; /* 调整位置 */
-    right: 12px;
-  }
-}
-
+/* =============== 2. Layout =============== */
 .main {
-  padding: 78px 24px 24px; /* 减少顶部间距，适应50px的顶栏 */
+  padding: 78px 24px 24px;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -180,25 +47,254 @@
   flex: 1;
 }
 
-/* 响应式调整main区域的顶部间距 */
-@media (max-width: 768px) {
-  .main {
-    padding-top: 98px; /* 适应70px的顶栏高度 + 28px间距 */
-  }
+/* =============== 3. Header & Navigation =============== */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-height: 50px;
+  backdrop-filter: blur(12px);
+  background: var(--card-bg);
+  z-index: 50;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding-top: 108px; /* 适应80px的顶栏高度 + 28px间距 */
-  }
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 50px;
+  padding: 4px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* =============== 图片网格 =============== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  order: 1;
+  flex-shrink: 0;
+}
+
+.logoImage {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+  margin: auto 0;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: normal;
+  margin-left: 16px;
+  position: relative;
+  animation: subtitleFloat 3s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  order: 2;
+  flex: 1;
+  justify-content: flex-end;
+  margin-right: 16px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nav a,
+.nav button {
+  text-decoration: none;
+}
+
+.navButton {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-primary);
+  background: transparent;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.navButton:hover {
+  background: #3B82F6;
+  color: #302f2f;
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.navButtonActive {
+  background: #3b83f6;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.navButtonLogout {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-primary);
+  background: transparent;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.navButtonLogout:hover {
+  background: #ef4444 !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  order: 3;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.topButton {
+  color: var(--text-primary);
+  background: transparent;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.topButton.visible {
+  opacity: 1;
+}
+
+.topArrow {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: solid var(--text-primary);
+  border-width: 2px 2px 0 0;
+  transform: rotate(-45deg);
+  margin-top: 4px;
+}
+
+.themeSwitch {
+  width: 25px;
+  height: 25px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 25px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%233b83f6"><path d="M518-440Zm6 400H408l12-9.5Q432-59 446.5-70T473-90.5l12-9.5h41q97 0 180.5-58T838-302q-90-8-173-41.5T518.5-440Q455-503 422-585.5T381-757q-88 48-144.5 130.5T180-444v11.5q0 6.5 1 11.5l-9.04 3.72q-9.04 3.72-19.96 7.78-10.92 4.06-19.96 7.78L123-398q-2-13-2.5-24t-.5-22q0-146 93-257.5T450-840q-18 98 11 192.63 29 94.64 100 165.74 71 71.1 165.5 100.14Q821-352.45 920-370.47q-26 144.2-138 237.34Q670-40 524-40Zm-284-60h180q33.33 0 56.67-23.26Q500-146.53 500-179.76q0-33.24-22.86-56.74T422-260h-39l-15-35q-17-39-51.69-62-34.68-23-76.31-23-57 0-98.5 41T100-240q0 58.33 40.83 99.17Q181.67-100 240-100Zm0 60q-83 0-141.5-58.5T40-240q0-83 58.5-141.5T240-440q60 0 109.5 32.5T423-320q57 2 97 42.5t40 97.5q0 58-41 99t-99 41H240Z"/></svg>');
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.themeSwitch:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.footer {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 12px;
+  color: white;
+  opacity: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+}
+
+.footer.visible {
+  opacity: 0.8;
+}
+
+.footer a {
+  color: white;
+  text-decoration: none;
+  border-bottom: 1px dotted white;
+}
+
+.footer a:hover {
+  opacity: 1;
+  border-bottom-style: solid;
+}
+
+/* =============== 4. Login Page =============== */
+.card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.input {
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.errorText {
+  margin: 0;
+}
+
+/* =============== 5. Grid Layouts =============== */
 .imageGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 24px;
-  /* padding: 20px; */
 }
 
 .previewArea {
@@ -224,7 +320,7 @@
   gap: 24px;
 }
 
-/* =============== 图片卡片组件 =============== */
+/* =============== 6. Image Card =============== */
 .imageCard {
   background: var(--card-bg);
   border-radius: 12px;
@@ -241,7 +337,7 @@
 }
 
 .imageCard:hover {
-  transform: translateY(-8px);
+  transform: translateY(-6px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
@@ -256,14 +352,29 @@
   border-radius: 10px;
 }
 
-/* 收藏的卡片被选中时的样式 */
 .imageCard.liked.selected {
   border: 1px solid #22c55e !important;
   background: #22c55e !important;
   border-radius: 10px;
 }
 
-/* =============== 图片预览组件 =============== */
+.selected .fileName,
+.selected .detailItem span,
+.selected .urlLabel,
+.selected .imageInfo {
+  color: var(--white);
+  font-weight: 700;
+}
+
+.liked .fileName,
+.liked .detailItem span,
+.liked .urlLabel,
+.liked .imageInfo {
+  color: var(--white);
+  font-weight: 700;
+}
+
+/* =============== 7. Image Preview & Placeholder =============== */
 .imagePreview {
   width: 100%;
   aspect-ratio: 1;
@@ -277,7 +388,6 @@
   object-fit: cover;
 }
 
-/* 图片占位符 */
 .imagePlaceholder {
   display: flex;
   align-items: center;
@@ -312,7 +422,6 @@
   background: rgba(220, 38, 38, 0.2);
 }
 
-/* 占位符内容 */
 .placeholderContent {
   display: flex;
   flex-direction: column;
@@ -332,45 +441,24 @@
   opacity: 0.8;
 }
 
-/* 加载动画 */
-.loadingSpinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.loadingSpinner span {
-  font-size: 1.5rem;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* =============== 图片信息组件 =============== */
+/* =============== 8. Card Info & Buttons =============== */
 .imageInfo {
-  padding: 16px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   flex: 1;
 }
 
 .fileName {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-primary);
   margin: 0;
   max-width: 100%;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-break: break-all;
-  min-height: 42px;  /* 确保两行高度，14px * 1.5行高 * 2行 */
-  line-height: 1.5;
+  line-height: 1.4;
   animation: textFadeIn 0.3s ease;
   font-weight: 700;
 }
@@ -378,8 +466,8 @@
 .detailsGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 2px;
+  margin-bottom: 4px;
 }
 
 .detailItem {
@@ -390,39 +478,6 @@
   font-size: 12px;
 }
 
-.selected .fileName,
-.selected .detailItem span,
-.selected .urlLabel,
-.selected .imageInfo {
-  color: var(--white);
-  font-weight: 700;
-}
-
-/* 确保选中和收藏状态下的样式保持一致 */
-.selected .fileName,
-.liked .fileName {
-  color: var(--white);
-  font-weight: 700;
-}
-
-/* 添加模态框中的文件名样式 */
-.modalFileName {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: var(--white);
-  font-size: 16px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
-  margin: 0;
-  font-weight: 500;
-  word-break: break-all;
-}
-
-/* =============== 按钮组件 =============== */
 .buttonGroup {
   display: flex;
   flex-wrap: wrap;
@@ -431,7 +486,6 @@
   align-items: center;
 }
 
-/* 基础按钮样式 */
 .button {
   cursor: pointer;
   transition: all 0.2s;
@@ -441,8 +495,6 @@
   transform: translateY(-2px);
 }
 
-/************************************************ 显示时的透明度 ***************************************/
-/* URL相关按钮统一样式 */
 .buttonUrl {
   background: #3B82F6 !important;
   color: var(--white) !important;
@@ -485,231 +537,63 @@
   box-shadow: 0 0 3px #6b7280;
 }
 
-/* 搜索按钮样式 */
-.buttonSearch {
-  background: var(--blue-primary);
-  border: var(--blue-primary);
-  padding: 6px 12px;
-  color: var(--white);
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.prelikebutton {
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  border: none;
+.likeToggle {
+  width: 100% !important;
+  min-width: unset !important;
+  max-width: unset !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  background: #374151 !important;
+  color: var(--white) !important;
+  border: 1px solid #4b5563 !important;
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: 700;  /* 统一加粗 */
-  background: #2563EB;
-  color: var(--white);
+  text-align: center !important;
+  font-weight: 600;
 }
 
-/* =============== 勾选框组 =============== */
-/* 通用滑动开关样式 */
-.toggleSwitch {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  background: #9ca3af;
-  border-radius: 50px;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.3s ease;
+.likeToggle:hover {
+  background: #4b5563 !important;
 }
 
-/* 鼠标悬停时完全不透明 */
-.toggleSwitch:hover {
-  opacity: 0.8;
+.likeToggleActive {
+  background: #ef4444 !important;
+  color: var(--white) !important;
+  border-color: #ef4444 !important;
 }
 
-/* 滑块 */
-.toggleSwitch::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  transition: all 0.3s ease;
+.likeToggleActive:hover {
+  background: #dc2626 !important;
 }
 
-/* 选中状态 */
-.toggleSwitch.checked {
-  background: #3b83f6;
-}
-
-.toggleSwitch.checked::before {
-  transform: translateX(16px);
-}
-
-/* 响应式布局 */
-@media (max-width: 1200px) {
-  .imageGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (max-width: 992px) {
-  .imageGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .imageGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .imageGrid {
-    grid-template-columns: repeat(1, 1fr);
-  }
-}
-
-/* 功能组件 */
-.controlBar {
+.urlGroup {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
-  padding: 16px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.selectionGroup {
+.urlItem {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 0;
 }
 
-/* 选择按钮组 */
-.selectionButtonGroup {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-/* 功能按钮组 */
-.actionButtonGroup {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-/* 搜索区域 */
-.searchGroup {
-  display: flex;
-  gap: 8px;
-  max-width: 300px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-/* 半屏响应式布局 */
-@media (max-width: 768px) {
-  .controlBar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .selectionGroup {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .selectionButtonGroup {
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .actionButtonGroup {
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .searchGroup {
-    max-width: none;
-    justify-content: center;
-  }
-}
-
-/* 更小屏幕优化 */
-@media (max-width: 480px) {
-  .selectionButtonGroup {
-    gap: 6px;
-  }
-
-  .actionButtonGroup {
-    gap: 6px;
-  }
-
-  .buttonSelect,
-  .greenButton,
-  .redButton {
-    font-size: 12px;
-    padding: 4px 8px;
-    height: 28px;
-  }
-}
-
-.buttonSelect {
-  padding: 6px 12px;  /* 减小内边距 */
-  border: 2px solid var(--border-color);
-  border-radius: 10px;  /* 稍微减小圆角 */
-  font-size: 14px;    /* 减小字体大小 */
-  cursor: pointer;
-  transition: all 0.2s;
-  background: #302f2f;
-  color: var(--white);
-  height: 32px;       /* 固定高度与搜索按钮一致 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-weight: 700;   /* 适当加粗 */
-}
-
-.buttonSelect:hover {
-  background: #2563EB;
-  color: var(--white);
-  border: 2px solid #2563EB;
-  box-shadow: 0 0 5px #2563EB;
-}
-
-
-
-
-
-.searchInput {
-  flex: 1;
+.urlInput {
+  width: 65%;
   padding: 8px 12px;
-  border-radius: 6px;
   border: 1px solid var(--border-color);
+  border-radius: 10px;
   background: var(--input-bg);
   color: var(--text-primary);
-  font-size: var(--button-font-base);
 }
 
-/************************************************ 显示时的透明度 ***************************************/
-/* 模态框组件 */
+.liked .urlInput {
+  color: var(--white);
+  border: 2px solid #2563EB;
+}
+
+/* =============== 9. Modal =============== */
 .modal {
   position: fixed;
   top: 0;
@@ -730,14 +614,12 @@
   max-height: 90vh;
 }
 
-/* 模态框图片样式 */
 .modalContent img {
   max-width: 100%;
   max-height: 90vh;
   object-fit: contain;
 }
 
-/* 模态框关闭按钮 */
 .modalClose {
   position: absolute;
   top: -40px;
@@ -750,115 +632,23 @@
   padding: 8px;
 }
 
-/* 时间轴视图 */
-.timelineView {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 20px 0;
-}
-
-.viewModeButton {
-  padding: 8px 16px;
-  border-radius: 10px;
-  background: var(--button-bg);
-  color: var(--text-primary);
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-  margin-right: 12px;
-}
-
-.viewModeButton:hover {
-  background: var(--button-hover);
-}
-
-.dateGroup {
-  background: var(--card-bg);
-  border-radius: 12px;
-  overflow: hidden;
-  padding: 0 24px;
-}
-
-.dateTitle {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-primary);
-  padding: 12px 0;
-  margin: 12px 0;
-  border-bottom: 2px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  background: var(--card-bg);
-  z-index: 10;
-  transition: all 0.3s ease;
-}
-
-.dateTitle:hover {
-  transform: translateX(8px);
-}
-
-/* 时间线视图中的网格布局优化 */
-.dateGroup .imageGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 24px;
-  padding: 12px 0;
-}
-
-/* 加载状态容器 */
-.loading {
-  position: relative;
-  background: var(--card-bg);
-}
-
-/* 加载指示器 */
-.loadingIndicator {
+.modalFileName {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-/* 错误状态 */
-.errorIndicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 20px;
+  left: 0;
+  right: 0;
   text-align: center;
-  color: #ef4444;
+  color: var(--white);
+  font-size: 16px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  margin: 0;
+  font-weight: 500;
+  word-break: break-all;
 }
 
-.errorIndicator span {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.errorIndicator small {
-  display: block;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.emptyState {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  background: var(--card-bg);
-  border-radius: 12px;
-  margin: 1rem;
-}
-
-/************************************************ 显示时的透明度 ***************************************/
-/* 上传区域容器 */
+/* =============== 10. Upload Area =============== */
 .uploadArea {
   background: var(--card-bg);
   backdrop-filter: blur(12px);
@@ -870,7 +660,107 @@
   box-sizing: border-box;
 }
 
-/* 上传图标 */
+.uploadOptions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.uploadOptionLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 12px;
+  background: #302f2f;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.uploadOptionLabel:hover {
+  background: #3b83f6;
+}
+
+.selectInput {
+  background: #1f1f1f;
+  color: var(--white);
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.selectInput:hover {
+  border-color: #3b83f6;
+}
+
+.selectInput:focus {
+  border-color: #3b83f6;
+  box-shadow: 0 0 0 2px rgba(59, 131, 246, 0.3);
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: #9ca3af;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.toggleSwitch:hover {
+  opacity: 0.8;
+}
+
+.toggleSwitch::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggleSwitch.checked {
+  background: #3b83f6;
+}
+
+.toggleSwitch.checked::before {
+  transform: translateX(16px);
+}
+
+.dropZone {
+  border: 2px dashed #302f2f;
+  padding: 60px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.dropZoneActive {
+  border: 3px solid #3B82F6;
+  background: rgba(107, 114, 128, 0.3);
+}
+
+.dropZone:hover {
+  border: 3px solid #3B82F6;
+}
+
 .uploadIcon {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%233B82F6"><path d="M250-160q-86 0-148-62T40-370q0-78 49.5-137.5T217-579q20-97 94-158.5T482-799q113 0 189.5 81.5T748-522v24q72-2 122 46.5T920-329q0 69-50 119t-119 50H510q-24 0-42-18t-18-42v-258l-83 83-43-43 156-156 156 156-43 43-83-83v258h241q45 0 77-32t32-77q0-45-32-77t-77-32h-63v-84q0-89-60.5-153T478-739q-89 0-150 64t-61 153h-19q-62 0-105 43.5T100-371q0 62 43.93 106.5T250-220h140v60H250Zm230-290Z"/></svg>');
   width: 150px;
@@ -878,27 +768,32 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  margin: 0 auto 16px;  /* 添加一些底部间距 */
+  margin: 0 auto 16px;
 }
 
-/* 上传文字提示 */
 .uploadText {
   color: var(--text-primary);
   font-size: 20px;
   font-weight: 500;
 }
 
-/* 上传状态容器 */
-.uploadingState {
-  text-align: center;
-  padding: 20px;
+/* =============== 11. Upload Status & Progress =============== */
+.uploadStatus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding: 16px 0;
 }
 
-/* 状态文本基础样式 */
+.statusLine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 .statusText {
   font-size: 18px;
   font-weight: 500;
@@ -909,39 +804,20 @@
   animation: textFadeIn 0.3s ease;
 }
 
-/* 文件名显示样式 */
-.fileName {
-  font-size: 14px;
-  color: var(--text-primary);
-  margin: 4px 0;
-  font-weight: 500;
-}
-
-/* 进度文本样式 */
-.progressText {
-  font-size: 14px;
-  color: var(--text-primary);
-  margin: 4px 0;
-  font-weight: 500;
-}
-
-/* 新的上传状态布局 */
-.statusLine {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
 .fileInfoLine {
   text-align: center;
   margin-bottom: 12px;
   font-size: 13px;
-  line-height: 20px;
+  line-height: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 12px;
 }
 
 .fileInfoLine > * {
-  margin: 0 8px;
+  margin: 0;
   display: inline;
   vertical-align: baseline;
 }
@@ -951,7 +827,6 @@
   font-weight: 600;
 }
 
-.fileName,
 .fileSize,
 .fileDimensions,
 .processedSize,
@@ -961,52 +836,81 @@
 }
 
 .progressContainer {
-  margin: 12px 0;
+  margin: 16px 0;
   position: relative;
+  width: 100%;
 }
 
 .progressBar {
   position: relative;
-  width: 300px;
-  height: 12px;
-  background: var(--input-bg);
-  border-radius: 6px;
+  width: 100%;
+  max-width: 560px;
+  height: 18px;
+  background: linear-gradient(135deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05));
+  border-radius: 12px;
   overflow: hidden;
   margin: 0 auto;
-  border: 1px solid var(--border-color);
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .progressBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-  border-radius: 6px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%, #2563eb 100%);
+  background-size: 200% 100%;
+  animation: progressGradient 2s ease infinite;
+  border-radius: 8px;
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.progressBarFill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 8px 8px 0 0;
 }
 
 .progressBarFill::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: progressShimmer 2s infinite;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progressShimmer 1.5s ease-in-out infinite;
 }
 
-
-
 .progressStats {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-primary);
   margin-bottom: 12px;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.loadingSpinner::after {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--text-primary);
+  border-color: var(--text-primary) transparent var(--text-primary) transparent;
+  animation: spin 1s linear infinite;
 }
 
 .operationLogs {
@@ -1035,373 +939,215 @@
   font-size: 10px;
 }
 
-/* 加载动画容器 */
-.loadingSpinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-/* 旋转圆环动画 */
-.loadingSpinner::after {
-  content: '';
-  display: block;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--text-primary);
-  border-color: var(--text-primary) transparent var(--text-primary) transparent;
-  animation: spin 1s linear infinite;
-}
-
-/* 进度条容器 */
-.progressBar {
-  width: 300px;
-  height: 8px;
-  background: var(--input-bg);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-  margin: 8px 0;
-}
-
-/* 总体进度条（背景层） */
-.progressBarTotal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: rgba(59, 131, 246, 0.2);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-/* 当前文件进度条（前景层） */
-.progressBarCurrent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(59, 131, 246, 0.5),
-    rgba(59, 131, 246, 1)
-  );
-  border-radius: 4px;
-  transition: width 0.3s ease;
-  animation: progressPulse 2s ease-in-out infinite;
-}
-
-/* 完成状态动画 */
-.complete {
-  animation: completeScale 0.5s ease;
-}
-
-/* 文件名渐变动画 */
-/* 动画关键帧 */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes progressPulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
-}
-
-@keyframes textFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes completeScale {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes progressShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 深色主题适配 */
-.containerDark .progressBarTotal {
-  background: rgba(234, 179, 8, 0.2);
-}
-
-.containerDark .progressBarCurrent {
-  background: linear-gradient(
-    90deg,
-    rgba(234, 179, 8, 0.5),
-    rgba(234, 179, 8, 1)
-  );
-}
-
-/* URL组样式 */
-.urlGroup {
+/* =============== 12. Manage Page Controls =============== */
+.controlBar {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.urlItem {
+.selectionGroup {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
 }
 
-.urlInput {
-  width: 65%;
+.selectionButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.searchGroup {
+  display: flex;
+  gap: 8px;
+  max-width: 300px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.statsBadges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.statsBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.searchInput {
+  flex: 1;
   padding: 8px 12px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
-  border-radius: 10px;
   background: var(--input-bg);
   color: var(--text-primary);
+  font-size: var(--button-font-base);
 }
 
-.liked .urlInput {
+.buttonSearch {
+  background: var(--blue-primary);
+  border: var(--blue-primary);
+  padding: 6px 12px;
+  color: var(--white);
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.buttonSelect {
+  padding: 6px 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #302f2f;
+  color: var(--white);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.buttonSelect:hover {
+  background: #2563EB;
   color: var(--white);
   border: 2px solid #2563EB;
+  box-shadow: 0 0 5px #2563EB;
 }
 
-/************************************************ 显示时的透明度 ***************************************/
-/* 导航按钮基础样式 */
-.navButton {
-  padding: 10px 20px; /* 恢复原始按钮大小 */
-  border-radius: 10px; /* 恢复原始圆角 */
-  font-size: 18px; /* 恢复原始字体大小 */
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: var(--text-primary);
-  background: transparent;
-  font-weight: 600;           /* 加粗所有导航按钮 */
-  text-decoration: none;      /* 移除下划线 */
-}
-
-/* 当前页面的导航按钮 - 日间模式 */
-.navButtonActive {
-  background: #3b83f6;
-  color: var(--white);
-  font-weight: 700;
-}
-
-/* 导航中的退出按钮 */
-.navButtonLogout {
-  padding: 10px 20px; /* 恢复与其他按钮一致的原始大小 */
-  border-radius: 10px; /* 恢复与其他按钮一致的原始圆角 */
-  font-size: 18px; /* 恢复与其他按钮一致的原始字体大小 */
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: var(--text-primary);
-  background: transparent;
-  font-weight: 600;           /* 加粗所有导航按钮 */
-  text-decoration: none;      /* 移除下划线 */
-}
-
-/* 退出按钮的独特hover效果 - 红色警告 */
-.navButtonLogout:hover {
-  background: #ef4444 !important; /* 红色背景，警告用户 */
-  color: var(--white) !important;
-  font-weight: 700;
-  transform: translateY(-1px); /* 轻微上移效果 */
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); /* 红色阴影 */
-}
-
-/* 移除所有导航按钮的下划线 */
-.nav a,
-.nav button {
-  text-decoration: none;
-}
-
-/* 导航按钮悬停效果 - 日间模式 */
-.navButton:hover {
-  background: #3B82F6;
-  color: #302f2f;
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/************************************************ 显示时的透明度 ***************************************/
-/* 拖放区域 */
-.dropZone {
-  border: 2px dashed #302f2f;
-  padding: 60px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-}
-
-/* 拖放区域激活状态 */
-.dropZoneActive {
-  border: 3px solid #3B82F6;
-  background: rgba(107, 114, 128, 0.3);
-}
-
-/* 拖放区域悬停状态 */
-.dropZone:hover {
-  border: 3px solid #3B82F6;
-}
-
-/************************************************ 显示时的透明度 ***************************************/
-.uploadOptions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.checkbox {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  z-index: 2;
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  visibility: hidden;
-}
-
-/* 上传选项标签 */
-.uploadOptionLabel {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  user-select: none;
-  color: var(--white);
-  font-size: 14px;
-  font-weight: 700;
-  padding: 6px 12px;
-  background: #302f2f;
+.greenButton {
+  background: #22c55e !important;
   border-radius: 10px;
-  transition: all 0.2s;
-}
-
-.uploadOptionLabel:hover {
-  background: #3b83f6;
-}
-
-/************************************************ 显示时的透明度 ***************************************/
-.topButton {
-  color: var(--text-primary);
-  background: transparent;
-  opacity: 0;
-  transition: all 0.3s;
-}
-
-/* 箭头图标 */
-.topArrow {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: solid var(--text-primary);
-  border-width: 2px 2px 0 0;
-  transform: rotate(-45deg);
-  margin-top: 4px;
-}
-
-.topButton.visible {
-  opacity: 1;
-}
-
-/************************************************ 显示时的透明度 ***************************************/
-/* 主题切换开关 */
-.themeSwitch {
-  width: 25px;
-  height: 25px;
-  border: none;
-  background-color: transparent;
+  color: var(--white) !important;
+  padding: 6px 12px;
+  border: 2px solid #22c55e;
+  font-size: 14px;
   cursor: pointer;
-  padding: 25px;  /* 移除内边距 */
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%233b83f6"><path d="M518-440Zm6 400H408l12-9.5Q432-59 446.5-70T473-90.5l12-9.5h41q97 0 180.5-58T838-302q-90-8-173-41.5T518.5-440Q455-503 422-585.5T381-757q-88 48-144.5 130.5T180-444v11.5q0 6.5 1 11.5l-9.04 3.72q-9.04 3.72-19.96 7.78-10.92 4.06-19.96 7.78L123-398q-2-13-2.5-24t-.5-22q0-146 93-257.5T450-840q-18 98 11 192.63 29 94.64 100 165.74 71 71.1 165.5 100.14Q821-352.45 920-370.47q-26 144.2-138 237.34Q670-40 524-40Zm-284-60h180q33.33 0 56.67-23.26Q500-146.53 500-179.76q0-33.24-22.86-56.74T422-260h-39l-15-35q-17-39-51.69-62-34.68-23-76.31-23-57 0-98.5 41T100-240q0 58.33 40.83 99.17Q181.67-100 240-100Zm0 60q-83 0-141.5-58.5T40-240q0-83 58.5-141.5T240-440q60 0 109.5 32.5T423-320q57 2 97 42.5t40 97.5q0 58-41 99t-99 41H240Z"/></svg>');
-  background-size: 40px;  /* 调整图标大小 */
+  transition: all 0.2s;
+  height: 32px;
+  font-weight: 700;
+}
+
+.redButton {
+  background: #ef4444 !important;
+  border-radius: 10px;
+  color: var(--white) !important;
+  padding: 6px 12px;
+  border: 2px solid #ef4444;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 32px;
+  font-weight: 700;
+}
+
+.timelineIcon,
+.gridIcon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-size: 20px;
   background-repeat: no-repeat;
-  background-position: center;  /* 确保居中 */
+  background-position: center;
 }
 
-.themeSwitch:hover {
-  background-color: rgba(0, 0, 0, 0.7);
+.timelineIcon {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>');
 }
 
-.checkboxContainer {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  z-index: 2;
+.gridIcon {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/></svg>');
 }
 
-/************************************************ 显示时的透明度 ***************************************/
-.footer {
-  text-align: center;
-  padding: 10px 0;
-  font-size: 12px;
-  color: white;
-  opacity: 0;  /* 默认不显示 */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+/* =============== 13. Timeline View =============== */
+.timelineView {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.dateGroup {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0 24px;
+}
+
+.dateTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  padding: 12px 0;
+  margin: 12px 0;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
   z-index: 10;
-  transition: opacity 0.3s ease;  /* 添加过渡效果 */
+  transition: all 0.3s ease;
 }
 
-.footer.visible {
-  opacity: 0.8;
+.dateTitle:hover {
+  transform: translateX(8px);
 }
 
-.footer a {
-  color: white;
-  text-decoration: none;
-  border-bottom: 1px dotted white;
+.dateGroup .imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+  padding: 12px 0;
 }
 
-.footer a:hover {
-  opacity: 1;
-  border-bottom-style: solid;
+/* =============== 14. States (Loading/Error/Empty) =============== */
+.loading {
+  position: relative;
+  background: var(--card-bg);
 }
 
-/************************************************ 显示时的透明度 ***************************************/
-.warningText {
-  font-size: 12px;
-  color: #ef4444;
-  margin-top: 8px;
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  margin: 1rem;
+}
+
+.statsInfo {
+  margin-top: 20px;
+  text-align: center;
 }
 
 .errorList {
@@ -1447,44 +1193,20 @@
   font-size: 0.9rem;
 }
 
-/* =============== 夜间模式 =============== */
+/* =============== 15. Dark Mode =============== */
 .containerDark {
-  --text-primary: var(--white);       /* 夜间主要文本颜色 */
-  --text-secondary: var(--white);     /* 夜间次要文本颜色 */
-  --border-color: var(--yellow-primary);/* 夜间边框颜色 */
-  --card-bg: rgba(0, 0, 0, 0.7);      /* 夜间卡片背景色 */
-  --button-bg: transparent;           /* 夜间按钮背景色 */
-  --button-hover: var(--yellow-primary);/* 夜间按钮悬停色 */
-  --input-bg: rgba(255, 255, 255, 0.1); /* 夜间输入框背景色 */
-  --highlight-button-bg: var(--yellow-primary);    /* 夜间高亮按钮背景色 */
-  --highlight-button-text: var(--black);           /* 夜间高亮按钮文本色 */
-  --highlight-button-border: rgba(234, 179, 8, 0.3);/* 夜间高亮按钮边框色 */
-  --upload-icon-color: var(--yellow-primary);      /* 夜间上传图标颜色 */
-  --preview-border-color: var(--yellow-primary);   /* 夜间预览边框颜色 */
+  --text-primary: var(--white);
+  --text-secondary: var(--white);
+  --border-color: var(--yellow-primary);
+  --card-bg: rgba(0, 0, 0, 0.7);
+  --button-bg: transparent;
+  --button-hover: var(--yellow-primary);
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --preview-border-color: var(--yellow-primary);
+  --upload-icon-color: var(--yellow-primary);
   background: linear-gradient(180deg, rgba(82,74,58,1) 0%, rgba(48,47,47,1) 27%, rgba(0,0,0,1) 100%);
 }
 
-.containerDark .urlInput.liked {
-  color: var(--white);
-  border: 2px solid #eab308;
-}
-
-.containerDark .prelikebutton {
-  background: var(--yellow-primary);
-  color: var(--black);
-}
-
-.containerDark .uploadIcon {
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%23EAB308"><path d="M250-160q-86 0-148-62T40-370q0-78 49.5-137.5T217-579q20-97 94-158.5T482-799q113 0 189.5 81.5T748-522v24q72-2 122 46.5T920-329q0 69-50 119t-119 50H510q-24 0-42-18t-18-42v-258l-83 83-43-43 156-156 156 156-43 43-83-83v258h241q45 0 77-32t32-77q0-45-32-77t-77-32h-63v-84q0-89-60.5-153T478-739q-89 0-150 64t-61 153h-19q-62 0-105 43.5T100-371q0 62 43.93 106.5T250-220h140v60H250Zm230-290Z"/></svg>');
-  width: 150px;
-  height: 150px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  margin: 0 auto 16px;  /* 添加一些底部间距 */
-}
-
-/* 深色主题适配 */
 .containerDark .toggleSwitch::before {
   background: black;
 }
@@ -1493,7 +1215,22 @@
   background: var(--yellow-primary);
 }
 
-/* 夜间模式适配 */
+.containerDark .themeSwitch {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%23eab308"><path d="M480-340q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41Zm0 60q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-450H40v-60h160v60Zm720 0H760v-60h160v60ZM450-760v-160h60v160h-60Zm0 720v-160h60v160h-60ZM262-658l-100-97 43-44 96 100-39 41Zm494 496-98-100 41-41 99 98-42 43Zm-99-537 98-99 44 42-99 98-43-41ZM162-205l99-98 42 42-98 99-43-43Zm318-275Z"/></svg>');
+}
+
+.containerDark .themeSwitch:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.containerDark .topButton {
+  color: var(--white);
+}
+
+.containerDark .topArrow {
+  border-color: var(--white);
+}
+
 .containerDark .imageCard {
   border-color: #ffffff;
   box-shadow: 0 0 10px rgba(234, 179, 8, 0.1);
@@ -1505,7 +1242,6 @@
   box-shadow: 0 0 10px rgba(234, 179, 8, 0.9);
 }
 
-/* 增加选择器优先级 */
 .containerDark .imageCard.selected .fileName,
 .containerDark .imageCard.selected .detailItem span,
 .containerDark .imageCard.selected .urlLabel,
@@ -1514,18 +1250,127 @@
   font-weight: 700;
 }
 
-/* 夜间主题下的搜索输入框 */
+.containerDark .navButtonActive {
+  background: var(--yellow-primary);
+  color: var(--black);
+  font-weight: 700;
+  box-shadow: 0 0 20px var(--yellow-primary);
+}
+
+.containerDark .navButton:hover {
+  background: var(--yellow-primary);
+  color: #6b7280;
+  box-shadow: 0 0 10px var(--yellow-primary);
+  transform: translateY(-1px);
+}
+
+.containerDark .navButtonLogout:hover {
+  background: #ef4444 !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5) !important;
+}
+
+.containerDark .dropZone {
+  border-color: #EAB308;
+  background: rgba(48, 47, 47, 0.2);
+}
+
+.containerDark .dropZoneActive {
+  border-color: #eab308;
+  background: rgba(48, 47, 47, 0.9);
+}
+
+.containerDark .selectInput {
+  background: #2a2a2a;
+  border-color: #555;
+  color: var(--white);
+}
+
+.containerDark .selectInput:hover {
+  border-color: #eab308;
+}
+
+.containerDark .dropZone:hover {
+  border: 3px solid var(--yellow-primary);
+}
+
+.containerDark .uploadOptionLabel {
+  background: #000000;
+  border: 2px solid var(--yellow-primary);
+  color: var(--white);
+}
+
+.containerDark .uploadOptionLabel:hover {
+  background: var(--yellow-primary);
+  border: 2px solid var(--yellow-primary);
+  color: var(--black);
+  box-shadow: 0 0 20px var(--yellow-primary);
+}
+
+.containerDark .urlInput.liked {
+  color: var(--white);
+  border: 2px solid #eab308;
+}
+
 .containerDark .searchInput {
   border-color: var(--preview-border-color);
 }
 
-/* 夜间主题下的选择按钮 */
 .containerDark .buttonSelect {
   background: transparent;
   border: 2px solid var(--yellow-primary);
 }
 
-/* 暗色主题下的上传状态 */
+.containerDark .buttonSelect:hover {
+  box-shadow: 0 0 10px var(--yellow-primary);
+}
+
+.containerDark .buttonSearch {
+  background: var(--blue-primary);
+  border: 2px solid var(--yellow-primary);
+  color: var(--white);
+  box-shadow: 0 0 10px var(--yellow-primary);
+}
+
+.containerDark .statsBadge {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+}
+
+.containerDark .dateTitle {
+  color: var(--white);
+  border-bottom-color: var(--yellow-primary);
+}
+
+.containerDark .liked .toggleSwitch::before {
+  background: black;
+}
+
+.containerDark .uploadIcon {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%23EAB308"><path d="M250-160q-86 0-148-62T40-370q0-78 49.5-137.5T217-579q20-97 94-158.5T482-799q113 0 189.5 81.5T748-522v24q72-2 122 46.5T920-329q0 69-50 119t-119 50H510q-24 0-42-18t-18-42v-258l-83 83-43-43 156-156 156 156-43 43-83-83v258h241q45 0 77-32t32-77q0-45-32-77t-77-32h-63v-84q0-89-60.5-153T478-739q-89 0-150 64t-61 153h-19q-62 0-105 43.5T100-371q0 62 43.93 106.5T250-220h140v60H250Zm230-290Z"/></svg>');
+  width: 150px;
+  height: 150px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0 auto 16px;
+}
+
+.containerDark .progressBar {
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 2px solid rgba(234, 179, 8, 0.35);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 0 rgba(234,179,8,0.1);
+}
+
+.containerDark .progressBarFill {
+  background: linear-gradient(90deg, #b45309 0%, #eab308 25%, #facc15 50%, #eab308 75%, #b45309 100%);
+  background-size: 200% 100%;
+  animation: progressGradient 2s ease infinite;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
 .containerDark .operationLogs {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid var(--yellow-primary);
@@ -1537,188 +1382,15 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.containerDark .progressBarFill {
-  background: linear-gradient(90deg, #eab308, #f59e0b);
-}
-
-.containerDark .progressBar {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--yellow-primary);
-}
-
 .containerDark .fileInfoLabel {
   color: var(--yellow-primary);
 }
 
-/* 暗色主题下的文件名和进度文本 */
 .containerDark .fileName,
 .containerDark .progressText {
   color: var(--white);
 }
 
-.containerDark .buttonSelect:hover {
-  box-shadow: 0 0 10px var(--yellow-primary);
-}
-
-/* 夜间模式下的搜索按钮保持蓝色主题 */
-.containerDark .buttonSearch {
-  background: var(--blue-primary);
-  border: 2px solid var(--yellow-primary);
-  color: var(--white);
-  box-shadow: 0 0 10px var(--yellow-primary);
-}
-
-/* 夜间模式适配 */
-.containerDark .dateTitle {
-  color: var(--white);
-  border-bottom-color: var(--yellow-primary);
-}
-
-/* 当前页面的导航按钮 - 夜间模式 */
-.containerDark .navButtonActive {
-  background: var(--yellow-primary);
-  color: var(--black);
-  font-weight: 700;
-  box-shadow: 0 0 20px var(--yellow-primary);  /* 黄色边沿模糊处理 */
-}
-
-/* 导航按钮悬停效果 - 夜间模式 */
-.containerDark .navButton:hover {
-  background: var(--yellow-primary);
-  color: #6b7280;
-  box-shadow: 0 0 10px var(--yellow-primary);
-  //opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* 夜间模式下退出登录按钮的特殊hover效果 */
-.containerDark .navButtonLogout:hover {
-  background: #ef4444 !important; /* 保持红色警告，不受夜间模式影响 */
-  color: var(--white) !important;
-  font-weight: 700;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5) !important; /* 更强的红色阴影 */
-}
-
-/* URL组按钮保持原样 */
-.containerDark .buttonUrl,
-.containerDark .buttonBbcode,
-.containerDark .buttonMarkdown {
-  /* 这些按钮不需要特殊的夜间模式样式 */
-}
-
-/* 深色主题样式 */
-.containerDark .dropZone {
-  border-color: #EAB308;
-  background: rgba(48, 47, 47, 0.2);
-}
-
-.containerDark .dropZoneActive {
-  border-color: #eab308;
-  background: rgba(48, 47, 47, 0.9);
-}
-
-.containerDark .dropZone:hover {
-  border: 3px solid var(--yellow-primary);
-}
-
-.containerDark .checkboxLabel {
-  color: white;
-}
-
-.containerDark .topButton {
-  color: var(--white);
-}
-
-.containerDark .topArrow {
-  border-color: var(--white);
-}
-
-/* 深色主题适配 */
-.containerDark .uploadOptionLabel {
-  background: #000000;
-  border: 2px solid var(--yellow-primary);
-  color: var(--white);
-}
-
-.containerDark .uploadOptionLabel:hover {
-  background: var(--yellow-primary);
-  border: 2px solid var(--yellow-primary);
-  color: var(--black);
-  box-shadow: 0 0 20px var(--yellow-primary);  /* 黄色边沿模糊处理 */
-}
-/* 深色主题下的主题切换按钮 */
-.containerDark .themeSwitch {
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48" fill="%23eab308"><path d="M480-340q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41Zm0 60q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-450H40v-60h160v60Zm720 0H760v-60h160v60ZM450-760v-160h60v160h-60Zm0 720v-160h60v160h-60ZM262-658l-100-97 43-44 96 100-39 41Zm494 496-98-100 41-41 99 98-42 43Zm-99-537 98-99 44 42-99 98-43-41ZM162-205l99-98 42 42-98 99-43-43Zm318-275Z"/></svg>');
-}
-
-.containerDark .themeSwitch:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-/* 保持暗色主题下按钮的样式 */
-.containerDark .liked .toggleSwitch::before {
-  background: black;  /* 保持暗色主题下按钮的颜色 */
-}
-
-/* 收藏状态下的文本样式 */
-.liked .fileName,
-.liked .detailItem span,
-.liked .urlLabel,
-.liked .imageInfo {
-  color: var(--white);
-  font-weight: 700;
-}
-
-/* 取消收藏按钮 */
-.redButton {
-  background: #ef4444 !important;
-  border-radius: 10px;
-  color: var(--white) !important;
-  padding: 6px 12px;  /* 减小内边距 */
-  border: 2px solid #ef4444;
-  font-size: 14px;    /* 减小字体大小 */
-  cursor: pointer;
-  transition: all 0.2s;
-  height: 32px;       /* 固定高度与搜索按钮一致 */
-  font-weight: 700;   /* 适当加粗 */
-}
-
-.greenButton {
-  background: #22c55e !important;
-  border-radius: 10px;
-  color: var(--white) !important;
-  padding: 6px 12px;  /* 减小内边距 */
-  border: 2px solid #22c55e;
-  font-size: 14px;    /* 减小字体大小 */
-  cursor: pointer;
-  transition: all 0.2s;
-  height: 32px;       /* 固定高度与搜索按钮一致 */
-  font-weight: 700;   /* 适当加粗 */
-}
-
-/* 视图模式图标基础样式 */
-.timelineIcon,
-.gridIcon {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  background-size: 20px;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-/* 时间线视图图标 */
-.timelineIcon {
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>');
-}
-
-/* 网格视图图标 */
-.gridIcon {
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/></svg>');
-}
-
-/* 深色主题适配 */
 .containerDark .timelineIcon {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23EAB308"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>');
 }
@@ -1727,61 +1399,81 @@
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23EAB308"><path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/></svg>');
 }
 
-.titleGroup {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-shrink: 0; /* 防止标题组被压缩 */
-  min-width: 0;
+/* =============== 16. Animations =============== */
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
-.subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: normal;
-  margin-left: 16px;  /* 增加与主标题的距离 */
-  position: relative;
-  animation: subtitleFloat 3s ease-in-out infinite;
-  white-space: nowrap; /* 防止副标题换行 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* 小屏幕时调整标题和副标题 */
+@keyframes textFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progressShimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes progressGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes subtitleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* =============== 17. Responsive =============== */
+@media (max-width: 1200px) {
+  .imageGrid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 992px) {
+  .imageGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
 @media (max-width: 768px) {
-  .title {
-    font-size: 20px;
-  }
-
-  .subtitle {
-    font-size: 12px;
-    margin-left: 12px;
-  }
-
-  .titleGroup {
-    gap: 6px;
-  }
+  .header { min-height: 70px; }
+  .headerContent { padding: 6px 16px; min-height: 70px; align-items: flex-start; flex-direction: column; justify-content: center; }
+  .logo { order: 1; align-self: flex-start; }
+  .nav { order: 2; gap: 10px; justify-content: center; margin-right: 0; width: 100%; }
+  .rightControls { order: 3; gap: 6px; position: absolute; top: 6px; right: 16px; }
+  .main { padding-top: 98px; }
+  .title { font-size: 20px; }
+  .subtitle { font-size: 12px; margin-left: 12px; }
+  .titleGroup { gap: 6px; }
+  .imageGrid { grid-template-columns: repeat(2, 1fr); }
+  .controlBar { flex-direction: column; align-items: stretch; gap: 12px; }
+  .selectionGroup { flex-direction: column; align-items: stretch; gap: 12px; }
+  .selectionButtonGroup { justify-content: center; gap: 8px; }
+  .actionButtonGroup { justify-content: center; gap: 8px; }
+  .searchGroup { max-width: none; justify-content: center; }
 }
 
 @media (max-width: 600px) {
-  .title {
-    font-size: 18px;
-  }
-
-  .subtitle {
-    display: none; /* 在很小的屏幕上隐藏副标题 */
-  }
-
-  .logoImage {
-    width: 28px;
-    height: 28px;
-  }
+  .header { min-height: 80px; }
+  .headerContent { padding: 6px 12px; min-height: 80px; }
+  .nav { gap: 8px; flex-wrap: wrap; }
+  .rightControls { gap: 4px; top: 6px; right: 12px; }
+  .main { padding-top: 108px; }
+  .title { font-size: 18px; }
+  .subtitle { display: none; }
+  .logoImage { width: 28px; height: 28px; }
+  .imageGrid { grid-template-columns: repeat(1, 1fr); }
+  .buttonSelect, .greenButton, .redButton { font-size: 12px; padding: 4px 8px; height: 28px; }
+  .selectionButtonGroup { gap: 6px; }
+  .actionButtonGroup { gap: 6px; }
 }
-@keyframes subtitleFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-

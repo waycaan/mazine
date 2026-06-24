@@ -77,8 +77,7 @@ export class ImageIndexManager {
       Bucket: this.bucketName,
       Key: this.indexKey,
       Body: indexData,
-      ContentType: 'application/json',
-      ACL: 'public-read'
+      ContentType: 'application/json'
     }));
     const endTime = Date.now();
     console.log(`✅ JSON保存到S3完成，耗时: ${endTime - startTime}ms`);

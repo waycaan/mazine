@@ -23,13 +23,12 @@
  */
 
 import { NextResponse } from 'next/server';
-
+export const runtime = 'edge'
 export async function GET() {
   try {
     const healthCheck = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
       environment: process.env.NODE_ENV,
       version: '1.0.0',
       services: {
@@ -64,7 +63,7 @@ function checkS3Config(): string {
 }
 
 function checkAuthConfig(): string {
-  const requiredAuthVars = ['AUTH_USERNAME', 'AUTH_PASSWORD', 'JWT_SECRET'];
+  const requiredAuthVars = ['AUTH_USERNAME', 'AUTH_PASSWORD'];
   const missingVars = requiredAuthVars.filter(varName => !process.env[varName]);
   
   if (missingVars.length > 0) {

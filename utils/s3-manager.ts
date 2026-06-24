@@ -113,8 +113,7 @@ export class S3Manager {
       Bucket: this.bucketName,
       Key: key,
       Body: JSON.stringify(data, null, 2),
-      ContentType: 'application/json',
-      ACL: 'public-read'
+      ContentType: 'application/json'
     });
     await this.s3Client.send(command);
   }
@@ -132,8 +131,7 @@ export class S3Manager {
       Bucket: this.bucketName,
       Key: imageKey,
       Body: file,
-      ContentType: contentType,
-      ACL: 'public-read'
+      ContentType: contentType
     });
     await this.s3Client.send(uploadCommand);
     let thumbnailKey = '';
@@ -144,7 +142,6 @@ export class S3Manager {
         Key: thumbnailKey,
         Body: thumbnailBuffer,
         ContentType: 'image/webp',
-        ACL: 'public-read'
       });
       await this.s3Client.send(thumbCommand);
     }
