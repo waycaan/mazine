@@ -13,8 +13,7 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 
 - 页面修改为自定压缩率，而不是之前的锁定压缩率。
 
-  ![s1.png](MDs/s1.png)
-
+![s1.png](/MDs/s1.png)
 # 重大更新-----[✈️see the updates ](https://www.bilibili.com/video/BV11cTLzpEmi/?share_source=copy_web&vd_source=374d45a7e4cafee012b1f00c94c3d023)
 
 ## 5月31日（废话少说，这是一个在原有 UI 基础上重新构建的全新项目，重构了代码结构，优化了验证机制，并改进了界面设计。）
@@ -60,12 +59,11 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 
 
 
-![home_1.webp](MDs/home_1.webp)
+![home_1.webp](/MDs/home_1.webp)
 
-![manage_1.webp](MDs/manage_1.webp)
+![manage_1.webp](/MDs/manage_1.webp)
 
-![manage_2.webp](MDs/manage_2.webp)
-
+![manage_2.webp](/MDs/manage_2.webp)
 
 
 ---
