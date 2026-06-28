@@ -11,9 +11,11 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 
 - 修改为支持worker page部署,下载上传速度更快，改为使用json加载数据文本的方案，优化function调用次数更少。（除了上传和加载列表外，通常都不会调用，R2出站免费）
 
-- 页面修改为自定压缩率，而不是之前的锁定压缩率。
+- 页面修改为自定义压缩率（默认无损上传），而不是之前的锁定压缩率。
 
 ![s1.png](/MDs/s1.png)
+
+---
 # 重大更新-----[✈️see the updates ](https://www.bilibili.com/video/BV11cTLzpEmi/?share_source=copy_web&vd_source=374d45a7e4cafee012b1f00c94c3d023)
 
 ## 5月31日（废话少说，这是一个在原有 UI 基础上重新构建的全新项目，重构了代码结构，优化了验证机制，并改进了界面设计。）
