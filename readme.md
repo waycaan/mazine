@@ -45,6 +45,7 @@ Due to the high risk of password leaks when handling CDN through open-source cod
 - 🖼️ Supports grid view and timeline view, card-style management and preview
 - ❤️ Image favorites functionality
 - 🔍 Image search feature
+- ✍️ **Typora Integration**: Paste images directly into Typora for auto-upload
 
 ## [✈️Take a look on YouTube](https://youtu.be/sdJEfDgE-yw?si=FvmTRFBZTk5P2CTf)
 
@@ -61,66 +62,99 @@ Due to the high risk of password leaks when handling CDN through open-source cod
 ---
 
 ## Deployment
----
-### 1.Fork this repository
 
----
-### 2. Generate Required Environment Variables for Login
+### 1. Fork this repository
 
-#### a. Generate the environment variable `JWT_SECRET` (JWT Secret Key):
+### 2. Set Environment Variables
 
-- Visit https://generate-secret.vercel.app/32
+#### Login
 
-- This website will automatically generate a secure random key.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AUTH_USERNAME` | ✅ | Login username |
+| `AUTH_PASSWORD` | ✅ | Login password (also used for session encryption) |
 
-#### b. Generate the environment variable `AUTH_PASSWORD_HASH` (Password Hash):
+#### S3 Storage
 
-- Visit https://bcrypt-generator.com/
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `S3_REGION` | ✅ | Bucket region (e.g., `auto`) |
+| `S3_ACCESS_KEY` | ✅ | S3 access key |
+| `S3_SECRET_KEY` | ✅ | S3 secret key |
+| `S3_ENDPOINT` | ✅ | S3 endpoint URL |
+| `S3_BUCKET_NAME` | ✅ | Bucket name |
+| `S3_FORCE_PATH_STYLE` | Optional | Set to `true` for some S3 providers |
 
-- Enter the desired password.
+#### Optional
 
-- Select 10 rounds of encryption.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_CDN` | Optional | Custom CDN domain |
+| `NEXT_PUBLIC_LANGUAGE` | Optional | UI language (`EN` or `ZH`) |
+| `UPLOAD_API_KEY` | Optional | API key for Typora upload |
 
-- Click "Generate" to obtain the hash value.
-  
----
-### 3.Using R2
+> **Tip**: Generate a random API Key for `UPLOAD_API_KEY` at https://generate-secret.vercel.app/32
+
+### 3. Configure R2 / S3 Storage
 
 This project is developed and tested using Cloudflare R2 as the storage bucket, and other S3 buckets have not been tested.  
 If using R2 as the storage backend, the configuration example is:
 
 [✡️R2-setting-guide, click here!!!!!](/MDs/R2-setting.md)
 
-```
-S3_REGION= bucket-region
-S3_ACCESS_KEY=your-access-key
-S3_SECRET_KEY=your-secret-key
-S3_BUCKET_NAME=your-bucket
-S3_ENDPOINT=http:bucket-endpoint
-NEXT_PUBLIC_CDN=xxx.r2.dev / custom domains
-NEXT_PUBLIC_LANGUAGE=EN
-AUTH_USERNAME=
-AUTH_PASSWORD_HASH=
-JWT_SECRET=
-```
----
-### 3.Vercel Deployment
+### 3. Deploy to Vercel
 
-#### import the respsitory to vercel
+#### Import the repository to Vercel
 
 ![vercel_2.png](/MDs/vercel_2.png)
 
 ![vercel_3.png](/MDs/vercel_3.png)
 
-#### setup your Environment Varicables
+#### Setup your Environment Variables
 
 ![vercel_1.png](/MDs/vercel_1.png)
 
-#### deploy and spend 1 min on your drink!
+#### Deploy and enjoy!
 
-#### enjoy!!
 ---
 
+## Typora Integration
+
+Mazine supports Typora image upload. When you paste an image in Typora, it automatically uploads to your Mazine instance.
+
+📖 **详细配置教程**: [Typora-Setup.md](/MDs/Typora-Setup.md)
+
+### Quick Setup
+
+1. **Generate API Key** at https://generate-secret.vercel.app/32
+
+2. **Add Environment Variable** in Vercel:
+   ```
+   UPLOAD_API_KEY=your-generated-api-key
+   ```
+
+3. **Configure Typora**:
+   - Open Typora → Preferences → Image
+   - Select "Upload Image"
+   - Configure as follows:
+     - **Upload Service**: Custom
+     - **Upload Service URL**: `https://your-vercel-app.vercel.app/api/upload/simple`
+     - **Upload Method**: POST
+     - **Request Headers**: `Authorization: Bearer YOUR_API_KEY`
+     - **Request Body**: `file`
+     - **Image URL**: `${url}`
+
+4. **Test**: Paste any image into Typora, it should upload automatically
+
+### How It Works
+
+- Typora sends the image to `/api/upload/simple`
+- The API validates your API key
+- The image is uploaded to your S3/R2 storage
+- The public URL is returned to Typora
+- Typora replaces the local image with the hosted URL
+
+---
 
 ## To-Do Features
 
@@ -139,15 +173,28 @@ JWT_SECRET=
 
 ------
 
-### **Prohibited Published On Any Other Platform Without Permission**
+### **⚠️ Prohibited: No Unauthorized Reproduction or Redistribution**
 
-The source code, documentation, and all related resources of this project must not be publicly disclosed, released, distributed, or shared by any third-party institution or company without permission from the copyright holder. Specifically, **this project is prohibited from being published on CSDN or any similar platform**, whether it's the full code or parts of it.
+**This project is strictly prohibited from being published, reproduced, distributed, or shared on any other platform without explicit written permission from the copyright holder (waycaan).**
+
+This includes but is not limited to:
+- Publishing source code, documentation, tutorials, or screenshots on blogs, forums, or social media (including CSDN, Juejin, Zhihu, WeChat Official Accounts, etc.)
+- Uploading to code hosting platforms other than the official repository (GitHub)
+- Incorporating into commercial products or services without authorization
+- Creating derivative works for public distribution without consent
+
+**Violators will be subject to legal action under applicable copyright and intellectual property laws.**
 
 ------
 
-## MIT License
+## Apache License 2.0
 
-This project is licensed under the **MIT License**. You are free to use, modify, and distribute the project as long as you retain the copyright notice of the original author.
+This project is licensed under the **Apache License 2.0**. You may use, modify, and distribute this project in compliance with the license terms, provided that:
+
+1. You retain the original copyright notice
+2. You include a copy of the Apache License 2.0
+3. You indicate any modifications made to the original code
+4. You do **NOT** publish or redistribute this project on any other platform without explicit permission from the copyright holder
 
 ------
 
