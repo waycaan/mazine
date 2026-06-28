@@ -7,7 +7,7 @@ Mazine 是一个基于 **Next.js 14** 和对象存储服务构建的 **Serverles
 - **代码托管**：项目代码托管在 **GitHub**，并部署到 **cfpage** 上运行。  
 - **环境变量管理**：密码和相关环境变量需手动填写到 cfpage 中，确保敏感信息安全。  
 
-# 再次更新(最终版)
+# 最后更新(最终版)
 
 - 修改为支持worker page部署,下载上传速度更快，改为使用json加载数据文本的方案，优化function调用次数更少。（除了上传和加载列表外，通常都不会调用，R2出站免费）
 
@@ -140,11 +140,9 @@ Build output:.vercel/output/static
 
 
 
-
-
 ---
 
-### ~~3.vercel部署~~ 暂时抛弃
+### ~~3.vercel部署~~ 抛弃
 
 #### ~~- 将这个forked的仓库导入到vercel里面~~
 
@@ -159,16 +157,6 @@ Build output:.vercel/output/static
 #### ~~- 点击deploy 并等待3分钟！~~
 
 #### ~~- 搞掂!!~~
-
----
-
-## 待开发功能
-
----
-
-Alist S3适配
-
-其他 S3适配
 
 ---
 
